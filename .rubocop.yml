@@ -1,0 +1,24 @@
+AllCops:
+  TargetRubyVersion: 2.3
+  Exclude:
+    - tmp/**/*
+    - vendor/**/*
+    - storage/**/*
+    - db/schema.rb
+
+Style/Documentation:
+  Enabled: false
+
+Layout/LineLength:
+  Max: 140
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*
+
+Metrics/MethodLength:
+  Exclude:
+    - db/migrate/*
+
+Layout/EndOfLine:
+  EnforcedStyle: lf

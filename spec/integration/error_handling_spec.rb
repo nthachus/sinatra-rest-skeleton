@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe 'Error handling' do
+RSpec.describe 'Error Handling' do
   before :all do
     mock_app ApplicationController do
       get '/raise-error' do

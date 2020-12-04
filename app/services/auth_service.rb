@@ -22,7 +22,7 @@ module Skeleton
     # @return [String] JWT
     def login(username, password)
       user = User.find_by! username: username
-      raise ActiveRecord::ActiveRecordError, 'Bad credentials' unless user.authenticate password
+      raise ActiveRecord::RecordNotFound, 'Bad credentials' unless user.authenticate password
 
       do_login user
     end

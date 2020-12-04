@@ -1,0 +1,64 @@
+version: "3"
+services:
+  db:
+    image: "postgres:9.6-alpine"
+    container_name: skeleton-db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=skeleton
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432:5432
+    command: ["postgres", "-c", "log_statement=all"]
+
+  api-dev:
+    build: .
+    image: "ami/ruby:2.4"
+    container_name: skeleton-api-dev
+    volumes:
+      - ".:/usr/src/app"
+    working_dir: /usr/src/app
+    environment:
+      - GEM_HOME=/usr/src/app/vendor/bundle/ruby/2.4.0
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    command: /bin/bash -c "
+      bundle install --path vendor/bundle --without '' --no-cache
+      && rm -rf ~/.bundle && gem check
+      && $$GEM_HOME/bin/rubocop
+      &&
+      if ! rake 'db:version' RACK_ENV=development 2>/dev/null; then
+      rake 'db:create' 'db:migrate' 'db:seed' RACK_ENV=development && rake 'db:migrate' 'db:seed' RACK_ENV=test;
+      fi
+      && $$GEM_HOME/bin/rspec
+      && $$GEM_HOME/bin/thin -t 86400 --threaded start
+      "
+
+  api-prod:
+    build:
+      context: .
+      target: ruby_runtime
+    image: "ami/ruby:2.4-thin"
+    container_name: skeleton-api-prod
+    volumes:
+      - ".:/usr/src/app"
+    working_dir: /usr/src/app
+    environment:
+      - GEM_HOME=/usr/src/app/vendor/bundle/ruby/2.4.0
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    command: /bin/bash -c "
+      [ -f $$GEM_HOME/bin/unicorn ]
+      && bundle check && bundle config --local without 'test:development' && bundle clean
+      && if ! rake 'db:version' RACK_ENV=production 2>/dev/null; then rake 'db:setup' RACK_ENV=production; fi
+      && $$GEM_HOME/bin/unicorn -c unicorn.rb -E production
+      "
+
+volumes:
+  pg_data:

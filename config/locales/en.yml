@@ -1,0 +1,16 @@
+en:
+  app:
+    welcome: Rest-API skeleton
+    something_went_wrong: Something went wrong!
+    resource_not_found: Resource not found.
+    function_not_implemented: The function is not implemented.
+    bad_json_request: Invalid JSON request.
+    missing_parameters: "Missing parameters: %{values}"
+
+    expired_token: The token has expired.
+    invalid_token: The token is invalid.
+    missing_token: A token must be passed.
+    access_denied: Access is denied.
+
+    invalid_ssl_client: Invalid SSL client certificate.
+    invalid_credentials: Invalid username or password.

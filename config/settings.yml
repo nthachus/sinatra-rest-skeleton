@@ -1,0 +1,16 @@
+default: &default
+  jwt_secret: skeleton
+  jwt_lifetime: 7200
+
+development:
+  <<: *default
+  jwt_issuer: Skeleton
+  jwt_lifetime: 900
+
+test:
+  <<: *default
+  jwt_issuer: Skeleton
+
+production:
+  <<: *default
+  jwt_issuer: Production

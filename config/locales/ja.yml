@@ -1,0 +1,16 @@
+ja:
+  app:
+    # welcome: Rest-API skeleton
+    something_went_wrong: 何かが悪くなった！
+    resource_not_found: 資源は見つけなかった。
+    function_not_implemented: 機能は実装されない。
+    bad_json_request: 無効のJSON要求。
+    missing_parameters: "行方不明のパラメータ：%{values}"
+
+    expired_token: トークンは期限切れになった。
+    invalid_token: トークンは無効である。
+    missing_token: トークンを通過することが必要である。
+    access_denied: アクセスは否定される。
+
+    invalid_ssl_client: 無効のSSLクライアント証明書。
+    invalid_credentials: 無効のユーザーネームまたはパスワード。

@@ -12,7 +12,7 @@ timeout 86_400
 
 # Specify path to socket unicorn listens to,
 # we will use this in our nginx.conf later
-listen "#{@dir}/tmp/sockets/unicorn.sock", backlog: 64 # number of clients
+# listen "#{@dir}/tmp/sockets/unicorn.sock", backlog: 64 # number of clients
 listen 3000, tcp_nopush: true
 
 # Set process id path

@@ -1,0 +1,20 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+
+  username: skeleton
+  password: 123456
+  host: skeleton-db
+
+development:
+  <<: *default
+  database: skeleton
+
+test:
+  <<: *default
+  database: skeleton_test
+
+production:
+  <<: *default
+  database: skeleton_prod

@@ -5,12 +5,11 @@ class UserController < Skeleton::Application
   map '/user'
 
   get '/', authorize: [] do
-    json current_user.as_json(methods: :session)
+    json current_user.as_json(except: :password_digest, methods: :session)
   end
 
-  get '/list', authorize: [Constants::ROLE_ADMIN] do
-    # list = user_service.list
-    # json list.as_json(include: :user)
-    not_implemented
+  get '/list', authorize: [Constants::Roles::ADMIN, Constants::Roles::POWER] do
+    list = user_service.find_all
+    json list.as_json(except: :password_digest, include: :sessions)
   end
 end

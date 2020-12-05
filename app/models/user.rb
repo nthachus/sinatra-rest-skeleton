@@ -16,7 +16,12 @@
 class User < ActiveRecord::Base
   has_secure_password validations: false
 
-  enum role: Constants::ROLES, _prefix: true
+  # Scopes
+  default_scope -> { where(deleted_at: nil) }
+  scope :deleted, -> { unscoped.where.not(deleted_at: nil) }
+
+  # Fields
+  enum role: Constants::Roles.new # _suffix: true
 
   # Validations
   validates :role, inclusion: { in: roles.keys }
@@ -27,6 +32,7 @@ class User < ActiveRecord::Base
 
   validates :name, presence: true, length: { maximum: 255 }
   validates :email, length: { maximum: 255, allow_nil: true }, uniqueness: { case_sensitive: false, allow_nil: true }
+  validates_format_of :email, with: URI::MailTo::EMAIL_REGEXP, allow_nil: true
   validates_numericality_of :created_by, :updated_by, :deleted_by, only_integer: true, allow_nil: true
 
   # Associations

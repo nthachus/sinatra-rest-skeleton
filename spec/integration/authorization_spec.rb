@@ -13,7 +13,7 @@ RSpec.describe 'Authorization' do
   end
 
   it 'authorizes for non-supported scheme' do
-    setup_auth_header_by_jwt '=', 'Basic'
+    setup_auth_header '=', 'Basic'
     get '/'
     expect(last_response).to be_unauthorized
     expect(last_response.body).to eq('{"error":"A token must be passed."}')
@@ -49,7 +49,7 @@ RSpec.describe 'Authorization' do
     ]
   ].each do |(name, jwt, expected)|
     it "authorizes with #{name}" do
-      setup_auth_header_by_jwt jwt
+      setup_auth_header jwt
       get '/'
       expect(last_response).to be_unauthorized
       expect(last_response.body).to match(/"error":"The token is invalid\.","extra":\[".*: #{expected}/)
@@ -58,7 +58,7 @@ RSpec.describe 'Authorization' do
 
   it 'authorizes with an expired token' do
     # noinspection SpellCheckingInspection
-    setup_auth_header_by_jwt 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTQ3NjQ4MDB9.SelrnuDhP7lP1zqbLp3kSMSeA88DRJqzUQ7nS6dO_10'
+    setup_auth_header 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTQ3NjQ4MDB9.SelrnuDhP7lP1zqbLp3kSMSeA88DRJqzUQ7nS6dO_10'
     get '/'
     expect(last_response).to be_unauthorized
     expect(last_response.body).to match(/"error":"The token has expired\."/)
@@ -66,7 +66,7 @@ RSpec.describe 'Authorization' do
 
   private
 
-  def setup_auth_header_by_jwt(jwt, schema = 'Bearer')
+  def setup_auth_header(jwt, schema = 'Bearer')
     header 'Authorization', "#{schema} #{jwt}"
   end
 end

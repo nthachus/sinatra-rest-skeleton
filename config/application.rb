@@ -3,7 +3,7 @@
 require_relative 'boot'
 require 'i18n'
 require 'sinatra/activerecord'
-require 'sinatra/json'
+require 'sinatra/config_file'
 
 module Skeleton
   # Base API Controller
@@ -12,6 +12,10 @@ module Skeleton
     set :root, File.expand_path('..', __dir__)
     disable :static
     enable :method_override
+
+    # Load application settings
+    register Sinatra::ConfigFile
+    config_file File.expand_path('settings.yml', __dir__)
 
     # Localization
     configure do
@@ -37,6 +41,7 @@ module Skeleton
     register Sinatra::ActiveRecordExtension
 
     # Response JSON with the default charset
+    # noinspection RubyResolve
     settings.add_charset << %r{/json$}
   end
 end

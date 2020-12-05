@@ -38,11 +38,6 @@ class User < ActiveRecord::Base
   # Associations
   has_many :sessions, class_name: :UserSession, inverse_of: :user
 
-  # @return [true, false]
-  def deleted?
-    deleted_at.present?
-  end
-
   # @return [UserSession]
   attr_accessor :session
 

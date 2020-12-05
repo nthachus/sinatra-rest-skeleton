@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sinatra/json'
+
 module Skeleton
   # Error handling
   class Application < Sinatra::Base

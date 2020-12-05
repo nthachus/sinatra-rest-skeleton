@@ -5,14 +5,21 @@ RSpec.describe ApplicationController do
     set_app described_class
   end
 
-  it 'should return welcome message' do
+  it 'prints welcome' do
     get '/'
     expect(last_response).to be_ok
     expect(last_response.content_type).to eq("#{@app.mime_type(:json)};charset=#{@app.default_encoding}")
     expect(last_response.body).to eq('"Rest-API skeleton"')
   end
 
-  it 'should support favicon static file' do
+  it 'returns not-implemented error' do
+    header 'Accept-Language', 'ja'
+    get '/status'
+    expect(last_response.status).to eq(501)
+    expect(last_response.body).to eq('{"error":"機能は実装されない。"}')
+  end
+
+  it 'supports favicon static file' do
     get '/favicon.ico'
     expect(last_response).to be_ok
     expect(last_response.content_type).to eq(@app.mime_type(:ico))

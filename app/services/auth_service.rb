@@ -4,10 +4,17 @@ require 'jwt'
 
 module Skeleton
   class Application < Sinatra::Base
-    set :authorization_method, ->(jwt) { auth_service.authorize jwt }
-
+    # @return [AuthService]
     def auth_service
       @auth_service ||= AuthService.new self
+    end
+
+    private
+
+    # @param [String] jwt
+    # @return [User]
+    def do_authorize(jwt)
+      auth_service.authorize jwt
     end
   end
 
@@ -25,14 +32,6 @@ module Skeleton
       raise ActiveRecord::RecordNotFound, 'Bad credentials' unless user.authenticate password
 
       do_login user
-    end
-
-    # @param [User] user
-    # @return [String] JWT
-    def do_login(user)
-      session = UserSession.create! user: user, key: SecureRandom.uuid
-
-      create_jwt user.id, session.key, name: user.name, email: user.email, role: user.role
     end
 
     # @param [Integer] user_id
@@ -71,6 +70,14 @@ module Skeleton
     end
 
     private
+
+    # @param [User] user
+    # @return [String] JWT
+    def do_login(user)
+      session = UserSession.create! user: user, key: SecureRandom.uuid
+
+      create_jwt user.id, session.key, name: user.name, email: user.email, role: user.role
+    end
 
     # @param [String] jwt
     # @return [Hash]

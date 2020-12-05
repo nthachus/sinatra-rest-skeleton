@@ -9,13 +9,13 @@ RSpec.describe 'Localization' do
     header 'Accept-Language', 'ja'
   end
 
-  it 'should use default language for missing translation' do
+  it 'uses default language for missing translation' do
     get '/'
     expect(last_response).to be_ok
     expect(last_response.body).to eq('"Rest-API skeleton"')
   end
 
-  it 'should return Japanese not-found message' do
+  it 'prints not-found error in Japanese' do
     get '/non-exist'
     expect(last_response).to be_not_found
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)

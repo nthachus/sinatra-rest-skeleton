@@ -6,18 +6,17 @@ module Skeleton
   # Authentication and Authorization with JWT in Sinatra
   class Application < Sinatra::Base
     attr_reader :current_user
-    set :authorization_method, ->(_jwt) {}
 
     before do
       if !request.options? && (req = Rack::Auth::AbstractRequest.new(env)).provided? && req.scheme == 'bearer'
         begin
-          @current_user = settings.authorization_method.call req.params
+          @current_user = respond_to?(:do_authorize, true) ? send(:do_authorize, req.params) : nil
         rescue JWT::ExpiredSignature => e
           logger.warn e
           unauthorized json_error(I18n.t('app.expired_token'), settings.production? ? nil : e.to_s)
         rescue JWT::DecodeError => e
           logger.error e
-          unauthorized json_error(I18n.t('app.invalid_token'), settings.production? ? e.to_s : [e.inspect] + e.backtrace)
+          unauthorized json_error(I18n.t('app.invalid_token'), settings.production? ? e.to_s : full_stacktrace(e))
         end
       end
     end

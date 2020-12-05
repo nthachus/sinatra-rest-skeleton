@@ -9,16 +9,16 @@ RSpec.describe 'Error Handling' do
     end
   end
 
-  it 'should return not-found message for non-exist API' do
+  it 'handles not-found error' do
     get '/non-exist'
     expect(last_response).to be_not_found
     expect(last_response.body).to eq('{"error":"Resource not found."}')
   end
 
-  it 'should return error message for exception API' do
+  it 'handles uncaught exception' do
     get '/raise-error'
     expect(last_response.status).to eq(500)
     expect(last_response.content_type).to match(/\b#{settings.default_encoding}$/)
-    expect(last_response.body).to match(/"error":".*","extra":\[".*\bRuntime error\b.*\b#{File.basename(__FILE__)}:7:/)
+    expect(last_response.body).to match(/"error":".*","extra":\[".*: Runtime error\.".*\b#{File.basename(__FILE__)}:7:/)
   end
 end

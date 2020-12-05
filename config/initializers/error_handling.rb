@@ -11,12 +11,19 @@ module Skeleton
 
     error do
       e = env['sinatra.error']
-      json_error I18n.t('app.something_went_wrong'), settings.production? ? e.to_s : [e.inspect] + e.backtrace
+      json_error I18n.t('app.something_went_wrong'), settings.production? ? e.to_s : full_stacktrace(e)
     end
 
     helpers do
+      # @param [String] message
       def json_error(message, extra = nil)
         json extra.present? ? { error: message, extra: extra } : { error: message }
+      end
+
+      # @param [Exception] err
+      # @return [Array]
+      def full_stacktrace(err)
+        ["#{err.class}: #{err.message}"] + err.backtrace
       end
 
       # Halt processing and return a 501 Not Implemented.

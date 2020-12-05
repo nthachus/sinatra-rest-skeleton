@@ -5,20 +5,20 @@ RSpec.describe 'Strong Parameters' do
     set_app AuthenticationController
   end
 
-  it 'should return error for empty body' do
+  it 'raises error for empty body' do
     post '/login', '', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_bad_request
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
     expect(last_response.body).to eq('{"error":"Missing parameters: username, password"}')
   end
 
-  it 'should return error for missed parameters' do
+  it 'missing parameter names' do
     post '/login', '{"username":0}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_bad_request
     expect(last_response.body).to eq('{"error":"Missing parameters: password"}')
   end
 
-  it 'should return error for empty parameters' do
+  it 'needs non-empty parameters' do
     post '/login', '{"username":"","password":null}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_bad_request
     expect(last_response.body).to eq('{"error":"Missing parameters: username, password"}')

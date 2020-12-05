@@ -21,6 +21,7 @@ module Skeleton
       I18n.fallbacks.defaults = [I18n.default_locale]
     end
 
+    # :nocov:
     configure :development do
       # Logging with DEBUG level
       set :logging, 0
@@ -30,6 +31,7 @@ module Skeleton
       set :logging, nil
       use Rack::Logger
     end
+    # :nocov:
 
     # Setup the database
     register Sinatra::ActiveRecordExtension

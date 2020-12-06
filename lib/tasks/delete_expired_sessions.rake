@@ -6,6 +6,7 @@ namespace :app do
   # rake "app:delete_expired_sessions[7200]"
   task :delete_expired_sessions, [:lifetime] do |_, args|
     ts = Time.now
+    # noinspection RubyResolve
     timeout = args[:lifetime]&.to_i || Skeleton::Application.jwt_lifetime
 
     num = UserSession.where('updated_at <= ?', ts - timeout).delete_all

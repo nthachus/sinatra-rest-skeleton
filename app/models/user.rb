@@ -13,6 +13,7 @@
 # @attr [Integer] created_by
 # @attr [Integer] updated_by
 # @attr [Integer] deleted_by
+# noinspection RailsParamDefResolve
 class User < ActiveRecord::Base
   has_secure_password validations: false
 
@@ -20,7 +21,9 @@ class User < ActiveRecord::Base
   default_scope -> { where(deleted_at: nil) }
   scope :deleted, -> { unscoped.where.not(deleted_at: nil) }
 
-  # Fields
+  # @!scope class
+  # @!method roles
+  #   @return [Hash]
   enum role: Constants::Roles.new # _suffix: true
 
   # Validations

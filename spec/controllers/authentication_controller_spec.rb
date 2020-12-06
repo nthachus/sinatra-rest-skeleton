@@ -21,6 +21,6 @@ RSpec.describe AuthenticationController do
   it 'logins successfully' do
     post '/login', '{"username":"ssl","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_ok
-    expect(last_response.body).to match(/^\{"jwt":"[^"]+"\}$/)
+    expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
   end
 end

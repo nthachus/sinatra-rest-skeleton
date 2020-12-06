@@ -19,8 +19,8 @@ module Skeleton
   end
 
   class AuthService
-    # @param [Sinatra::Base] app
     def initialize(app)
+      # @type [Skeleton::Application]
       @app = app
     end
 

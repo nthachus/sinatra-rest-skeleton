@@ -5,11 +5,13 @@ require 'rack/auth/abstract/request'
 module Skeleton
   # Authentication and Authorization with JWT in Sinatra
   class Application < Sinatra::Base
+    # @return [User]
     attr_reader :current_user
 
     before do
       if !request.options? && (req = Rack::Auth::AbstractRequest.new(env)).provided? && req.scheme == 'bearer'
         begin
+          # noinspection RailsParamDefResolve
           @current_user = respond_to?(:do_authorize, true) ? send(:do_authorize, req.params) : nil
         rescue JWT::ExpiredSignature => e
           logger.warn e

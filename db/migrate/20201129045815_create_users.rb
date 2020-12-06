@@ -13,6 +13,7 @@ class CreateUsers < ActiveRecord::Migration[5.2]
 
       t.timestamps
       t.datetime :deleted_at
+      # noinspection RubyResolve
       t.bigint :created_by, :updated_by, :deleted_by
 
       t.index 'lower(email)', unique: true

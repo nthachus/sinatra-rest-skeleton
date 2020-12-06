@@ -6,6 +6,7 @@
 # @attr [Hash] value
 # @attr [DateTime] created_at
 # @attr [DateTime] updated_at
+# noinspection RailsParamDefResolve
 class UserSession < ActiveRecord::Base
   # Validations
   validates :user_id, numericality: { only_integer: true }

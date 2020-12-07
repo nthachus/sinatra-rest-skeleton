@@ -2,6 +2,14 @@ default: &default
   jwt_secret: skeleton
   jwt_lifetime: 7200
 
+  ssl_client_env_key: HTTP_X_SSL_CLIENT_CERT
+  ssl_signer_pub_key: "-----BEGIN PUBLIC KEY-----\n\
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAz0FhI5u0D3PK09j5sOYUPGR8snm0pbTFg937CLXFOYGxEToN2bmpaA7L
+    xD+tWbffwobCIPTcu+uC1NdqZDbHyPuQ8jN++QvabAF2W+2bq23KHTlpwT6KKy8GjZHBlBAgebQ8Se06X55LL60AbJ27xCVVM4Mv
+    OibgpdCNsLXVNbc0o95opMl+/7P/PF1UmpnFC4jX8950BEsruDqRYrXlihx8GZpBHqXs7RrXwvBsmnBIRdLW1Dp0RFYwwujDCuP7
+    aRxP/d2SgTktoMVQLof8U430OtwS30kdGcxef0nScoZyhKti6AN7tHDRpnFu38dGStB3uTsPumbh549ZEb5wDQIDAQAB\n\
+    -----END PUBLIC KEY-----\n"
+
 development:
   <<: *default
   jwt_issuer: Skeleton

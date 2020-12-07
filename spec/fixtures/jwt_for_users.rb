@@ -7,4 +7,7 @@ module Fixtures
 
   ADMIN_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTa2VsZXRvbiIsInN1YiI6MSwianRpIjoiYWRtaW4teHgifQ' \
     '.CRW6qvxcZWI4ck7gKOgZ438R_nxmidV28y080H9QdJE'
+
+  POWER_USER_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTa2VsZXRvbiIsInN1YiI6MywianRpIjoicG93ZXIteHgifQ' \
+    '.4U1QlgXiGZqjaY-FKTkP901VVabFol1hflmwNcmYvu0'
 end

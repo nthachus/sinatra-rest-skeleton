@@ -28,7 +28,15 @@ RSpec.describe UserController do
     get '/list'
     expect(last_response).to be_ok
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to match(/^\[{.*"role":"user","username":"ssl",.*"sessions":\[{/)
+    expect(last_response.body).to match(/^\[{.*"role":"admin",.*"role":"user",.*"sessions":\[{.*"role":"power"/)
+  end
+
+  it 'list users by power user' do
+    setup_auth_header Fixtures::POWER_USER_JWT
+    get '/list'
+    expect(last_response).to be_ok
+    expect(last_response.body).to match(/^\[{.*"role":"user",.*"sessions":\[{.*"role":"power"/)
+    expect(last_response.body).not_to match(/"role":"admin"/)
   end
 
   private

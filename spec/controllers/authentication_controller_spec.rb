@@ -18,8 +18,14 @@ RSpec.describe AuthenticationController do
     expect(last_response.body).to match(/"error":"Invalid username or password.","extra":"Bad credentials/)
   end
 
-  it 'logins successfully' do
+  it 'logins by username successfully' do
     post '/login', '{"username":"ssl","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
+    expect(last_response).to be_ok
+    expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
+  end
+
+  it 'logins by email successfully' do
+    post '/login', '{"username":"ssl@skeleton.xx","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_ok
     expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
   end

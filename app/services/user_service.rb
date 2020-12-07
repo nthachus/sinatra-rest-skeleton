@@ -18,13 +18,11 @@ module Skeleton
     # @param [String] email
     # @return [User]
     def find_first(username, email)
-      user = User.find_by(username: username) if username.present?
-      return user if user&.id
+      user = username.blank? ? nil : User.find_by(username: username)
+      user = User.find_by(email: email) if !user && email.present?
+      raise ActiveRecord::RecordNotFound, 'User not found' unless user&.id
 
-      user = User.find_by(email: email) if email.present?
-      return user if user&.id
-
-      raise ActiveRecord::RecordNotFound, 'User not found'
+      user
     end
 
     def find_all

@@ -26,10 +26,10 @@ module Skeleton
     end
 
     def find_all
+      user_role = User.arel_table[:role]
+
       User.unscoped.includes(:sessions).where(
-        'role = ? OR role >= ?',
-        User.roles[Constants::Roles::USER],
-        User.roles[@app.current_user.role]
+        user_role.eq(User.roles[Constants::Roles::USER]).or(user_role.gteq(User.roles[@app.current_user.role]))
       )
     end
   end

@@ -9,16 +9,34 @@ A boilerplate for **Sinatra** Restful-API applications using Rails structure.
 
 ## What is inside?
 
-- Sinatra 2.0.x
-- Sinatra Contrib 2.0.x
+For Framework:
+- Sinatra (v2.0.x)
+- Sinatra Contrib (v2.0.x)
+- Rack (v2)
+- Rack Contrib (v2)
 
-- Active Record 5.2.x
-- Postgres 0.x
+For Database:
+- I18n (v1)
+- Active Support (v5.2.x)
+- Active Record (v5.2.x)
+- Arel (latest)
+- Postgres (v1)
 
-- RSpec 3.x
-- Rack Test 0.x
+For Testing:
+- RSpec (v3)
+- Rack Test (v1)
+- SimpleCov (v0.17)
 
-- Pry 0.x
+For Development:
+- Pry (latest)
+- RuboCop (v0.79)
+- Thin (v1)
+- Unicorn (latest)
+
+Misc:
+- BCrypt (v3.1.x)
+- JWT (latest)
+- Net::LDAP (latest)
 
 ## Features
 
@@ -27,33 +45,41 @@ A boilerplate for **Sinatra** Restful-API applications using Rails structure.
 
 ```bash
 $
-├─ app
-│  ├─ controllers
-│  ├─ helpers
-│  ├─ models
-│  └─ services
-├─ config
-│  ├─ initializers
-│  └─ locales
-│     └─ rails
-├─ db
-│  ├─ migrate
-│  └─ seeds
-├─ lib
-│  └─ tasks
-├─ log
-├─ public
-├─ spec
-│  ├─ controllers
-│  ├─ fixtures
-│  ├─ integration
-│  └─ models
-├─ storage
-├─ tmp
-│  ├─ cache
-│  ├─ pids
-│  └─ sockets
-└─ vendor
+├─ [app]
+│  ├─ [controllers]
+│  ├─ [helpers]
+│  ├─ [models]
+│  └─ [services]
+├─ [config]
+│  ├─ [initializers]
+│  ├─ [locales]
+│  ├─ application.rb
+│  ├─ database.yml
+│  └─ settings.yml
+├─ [db]
+│  ├─ [migrate]
+│  ├─ [seeds]
+│  └─ seeds.rb
+├─ [lib]
+│  └─ [tasks]
+├─ [log]
+├─ [public]
+├─ [spec]
+│  ├─ [controllers]
+│  ├─ [fixtures]
+│  ├─ [integration]
+│  ├─ [models]
+│  └─ spec_helper.rb
+├─ [storage]
+├─ [tmp]
+│  ├─ [cache]
+│  ├─ [pids]
+│  └─ [sockets]
+├─ [vendor]
+├─ .rspec
+├─ config.ru
+├─ Rakefile
+└─ unicorn.rb
 ```
 
 ## Development

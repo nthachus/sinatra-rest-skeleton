@@ -44,8 +44,9 @@ class User < ActiveRecord::Base
   # @return [UserSession]
   attr_accessor :session
 
-  # Renew the session token
+  private
+
   def on_authorized
-    session&.touch
+    User.logger&.info "Authorized session: #{session&.key}"
   end
 end

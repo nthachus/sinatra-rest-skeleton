@@ -3,6 +3,7 @@
 RSpec.describe AuthenticationController do
   before :all do
     set_app described_class
+    @jwt = []
   end
 
   it 'logins with non-exist user' do
@@ -22,11 +23,21 @@ RSpec.describe AuthenticationController do
     post '/login', '{"username":"ssl","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_ok
     expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
+    @jwt << last_response.body[8..-3]
   end
 
   it 'logins by email successfully' do
     post '/login', '{"username":"ssl@skeleton.xx","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_ok
     expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
+    @jwt << last_response.body[8..-3]
+  end
+
+  it 'renews user token successfully' do
+    skip 'Needs to login first' if @jwt.blank?
+    header 'Authorization', "Bearer #{@jwt.last}"
+    get '/token'
+    expect(last_response).to be_ok
+    expect(last_response.body).to include(@jwt.last)
   end
 end

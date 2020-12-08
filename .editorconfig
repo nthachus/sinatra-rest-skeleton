@@ -17,4 +17,5 @@ trim_trailing_whitespace = false
 # noinspection EditorConfigKeyCorrectness
 [*.{rb,ru,rake}]
 quote_type = single
+continuation_indent_size = 2
 spaces_within_braces = true

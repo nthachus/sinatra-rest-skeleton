@@ -37,7 +37,7 @@ module Skeleton
         access_denied json_error(I18n.t('app.access_denied')) if
           roles.present? && current_user.respond_to?(:role) && !(current_user.role && roles.include?(current_user.role.to_sym))
 
-        current_user.on_authorized if current_user.respond_to?(:on_authorized)
+        current_user.send(:on_authorized) if current_user.respond_to?(:on_authorized, true)
       end
     end
 

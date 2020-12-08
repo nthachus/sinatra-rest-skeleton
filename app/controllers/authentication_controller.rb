@@ -13,4 +13,12 @@ class AuthenticationController < Skeleton::Application
       bad_request json_error(I18n.t('app.invalid_credentials'), e.to_s)
     end
   end
+
+  # Renew the session token
+  get '/token', authorize: [] do
+    current_user.session.touch
+
+    jwt = auth_service.do_login current_user, current_user.session
+    json jwt: jwt
+  end
 end

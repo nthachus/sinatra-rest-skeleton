@@ -34,6 +34,15 @@ module Skeleton
       do_login user
     end
 
+    # @param [User] user
+    # @param [UserSession] session
+    # @return [String] JWT
+    def do_login(user, session = nil)
+      session ||= UserSession.create! user: user, key: SecureRandom.uuid
+
+      create_jwt user.id, session.key, name: user.name, email: user.email, role: user.role
+    end
+
     # @param [Integer] user_id
     # @param [String] session_key
     # @param [Hash] data
@@ -70,15 +79,6 @@ module Skeleton
     end
 
     private
-
-    # @param [User] user
-    # @param [UserSession] session
-    # @return [String] JWT
-    def do_login(user, session = nil)
-      session ||= UserSession.create! user: user, key: SecureRandom.uuid
-
-      create_jwt user.id, session.key, name: user.name, email: user.email, role: user.role
-    end
 
     # @param [String] jwt
     # @return [Hash]

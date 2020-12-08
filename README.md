@@ -140,15 +140,10 @@ Running Production server after the built:
 Navigate http://docker.lvh.me:3000/ for verifying (`docker.lvh.me` is the running docker-machine IP).\
 **Refer** to [Dockerfile](Dockerfile) for deployment on [Amazon Linux 2](https://aws.amazon.com/amazon-linux-2/).
 
-#### Notes
+### Notes
 
-- View the executed SQLs:
-
-      $ docker-compose logs db
-
-- Shutdown the Docker containers:
-
-      $ docker-compose down
+- View the executed SQLs: `docker-compose logs db`
+- Shutdown the Docker containers: `docker-compose down`
 
 ## License
 

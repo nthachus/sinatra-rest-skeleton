@@ -23,7 +23,7 @@ module Skeleton
       end
 
       # @param [Exception] err
-      # @return [Array]
+      # @return [Array<String>]
       def full_stacktrace(err)
         ["#{err.class}: #{err.message}"] + err.backtrace
       end

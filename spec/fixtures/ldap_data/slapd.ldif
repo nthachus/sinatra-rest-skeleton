@@ -1,0 +1,92 @@
+# Global config:
+#
+dn: cn=config
+objectClass: olcGlobal
+cn: config
+# If you change this, set pidfile variable in /etc/conf.d/slapd!
+olcPidFile: /run/openldap/slapd.pid
+olcArgsFile: /run/openldap/slapd.args
+#olcReferral: ldap://root.openldap.org
+#olcSecurity: ssf=1 update_ssf=112 simple_bind=64
+olcDisallows: bind_anon
+olcTLSCertificateFile: /etc/ldap/server.crt
+olcTLSCertificateKeyFile: /etc/ldap/server.key
+olcTLSCACertificateFile: /etc/ldap/ca.crt
+
+# Load dynamic backend modules:
+#
+dn: cn=module,cn=config
+objectClass: olcModuleList
+cn: module
+olcModulepath: /usr/lib/openldap
+olcModuleload: back_mdb.so
+olcModuleload: memberof.so
+olcModuleload: refint.so
+
+# Load schemas
+#
+dn: cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: schema
+
+include: file:///etc/openldap/schema/core.ldif
+include: file:///etc/openldap/schema/cosine.ldif
+include: file:///etc/openldap/schema/nis.ldif
+include: file:///etc/openldap/schema/inetorgperson.ldif
+include: file:///etc/openldap/schema/samba.ldif
+
+# Frontend settings
+#
+dn: olcDatabase=frontend,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcFrontendConfig
+olcDatabase: frontend
+olcAccess: to * by * read
+olcRequires: authc
+
+# Set a RootPW (default: secret) for the config database so we can bind.
+dn: olcDatabase=config,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: config
+olcRootPW: {SSHA}5kYZdVEqaATK3S4noNlSW64zFiJVn5q1MA2qTw==
+olcAccess: to * by * none
+
+# LMDB database definitions
+#
+dn: olcDatabase=mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: mdb
+olcSuffix: dc=skeleton,dc=xx
+olcRootDN: cn=admin,dc=skeleton,dc=xx
+olcRootPW: {SSHA}5kYZdVEqaATK3S4noNlSW64zFiJVn5q1MA2qTw==
+olcDbDirectory: /var/lib/openldap/openldap-data
+# Indices to maintain
+olcDbIndex: objectClass eq
+olcDbIndex: cn,uid eq
+olcDbIndex: member,memberUid eq
+olcAccess: to attrs=userPassword,sambaNTPassword
+  by self write
+  by anonymous auth
+  by group.exact="cn=Administrators,ou=Groups,dc=skeleton,dc=xx" write
+  by * none
+olcAccess: to * by self write by group.exact="cn=Administrators,ou=Groups,dc=skeleton,dc=xx" write by * read
+
+# Overlays
+#
+dn: olcOverlay=memberof,olcDatabase={1}mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcMemberOf
+olcOverlay: memberof
+olcMemberOfGroupOC: groupOfNames
+olcMemberOfMemberAD: member
+olcMemberOfMemberOfAD: memberOf
+olcMemberOfRefInt: TRUE
+olcMemberOfDangling: ignore
+
+dn: olcOverlay=refint,olcDatabase={1}mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcRefintConfig
+olcOverlay: refint
+olcRefintAttribute: member
+olcRefintNothing: cn=admin,dc=skeleton,dc=xx

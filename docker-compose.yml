@@ -13,10 +13,23 @@ services:
       - 5432:5432
     command: ["postgres", "-c", "log_statement=all"]
 
+  ldap:
+    image: nthachus/alpine-ldap
+    container_name: skeleton-ldap
+    volumes:
+      - "./spec/fixtures/ldap_data:/etc/ldap:ro"
+      - ldap_conf:/etc/openldap/slapd.d
+      - ldap_data:/var/lib/openldap/openldap-data
+    environment:
+      - LOG_LEVEL=834
+    ports:
+      - 389:389
+      - 636:636
+
   api-dev:
     build: .
     image: "ami/ruby:2.4"
-    container_name: skeleton-api-dev
+    container_name: skeleton-dev
     volumes:
       - ".:/usr/src/app"
     working_dir: /usr/src/app
@@ -26,6 +39,7 @@ services:
       - 3000:3000
     depends_on:
       - db
+      - ldap
     command: /bin/bash -c "
       bundle install --path vendor/bundle --without '' --no-cache
       && rm -rf ~/.bundle && gem check
@@ -43,7 +57,7 @@ services:
       context: .
       target: ruby_runtime
     image: "ami/ruby:2.4-thin"
-    container_name: skeleton-api-prod
+    container_name: skeleton-prod
     volumes:
       - ".:/usr/src/app"
     working_dir: /usr/src/app
@@ -53,6 +67,7 @@ services:
       - 3000:3000
     depends_on:
       - db
+      - ldap
     command: /bin/bash -c "
       [ -f $$GEM_HOME/bin/unicorn ]
       && bundle check && bundle config --local without 'test:development' && bundle clean
@@ -62,3 +77,5 @@ services:
 
 volumes:
   pg_data:
+  ldap_conf:
+  ldap_data:

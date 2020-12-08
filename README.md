@@ -130,7 +130,7 @@ Build and run Development server:
 
     $ docker-compose up -d db api-dev
 
-Then, run `docker exec -it skeleton-api-dev /bin/bash` for development console.\
+Then, run `docker exec -it skeleton-dev /bin/bash` for development console.\
 **Refer** to [docker-compose.yml](docker-compose.yml) for more details.
 
 Running Production server after the built:

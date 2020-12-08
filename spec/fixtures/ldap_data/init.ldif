@@ -1,0 +1,114 @@
+dn: dc=skeleton,dc=xx
+objectclass: dcObject
+objectclass: organization
+dc: skeleton
+o: SSL Corp
+
+dn: sambaDomainName=SKELETON,dc=skeleton,dc=xx
+objectclass: sambaDomain
+objectclass: sambaUnixIdPool
+sambaDomainName: SKELETON
+sambaSID: S-1-5-21-3809161173-2687474671-1432921517
+gidNumber: 1000
+uidNumber: 1000
+sambaAlgorithmicRidBase: 1000
+
+dn: ou=Groups,dc=skeleton,dc=xx
+objectclass: top
+objectclass: organizationalUnit
+ou: Groups
+
+dn: ou=Users,dc=skeleton,dc=xx
+objectclass: top
+objectclass: organizationalUnit
+ou: Users
+
+dn: cn=Domain Admins,ou=Groups,dc=skeleton,dc=xx
+objectclass: posixGroup
+objectclass: sambaGroupMapping
+sambaSID: S-1-5-21-3809161173-2687474671-1432921517-512
+displayName: Domain Administrators
+cn: Domain Admins
+memberUid: Administrator
+gidNumber: 512
+description: Domain Administrators
+sambaGroupType: 2
+
+dn: cn=Domain Users,ou=Groups,dc=skeleton,dc=xx
+objectclass: posixGroup
+objectclass: sambaGroupMapping
+sambaSID: S-1-5-21-3809161173-2687474671-1432921517-513
+displayName: Domain Users
+cn: Domain Users
+memberUid: ad1
+gidNumber: 513
+description: Domain Users
+sambaGroupType: 2
+
+dn: cn=Administrators,ou=Groups,dc=skeleton,dc=xx
+objectclass: groupOfNames
+objectclass: sambaGroupMapping
+sambaSID: S-1-5-21-3809161173-2687474671-1432921517-544
+cn: Administrators
+member: uid=Administrator,ou=Users,dc=skeleton,dc=xx
+gidNumber: 544
+description: Administrators
+sambaGroupType: 5
+
+# Password: 1234
+dn: uid=Administrator,ou=Users,dc=skeleton,dc=xx
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: sambaSamAccount
+sambaAcctFlags: [U]
+sambaPwdLastSet: 1564839212
+sambaNTPassword: 7CE21F17C0AEE7FB9CEBA532D0546AD6
+o: SSL Corp
+sambaPrimaryGroupSID: S-1-5-21-3809161173-2687474671-1432921517-512
+sambaSID: S-1-5-21-3809161173-2687474671-1432921517-1001
+userPassword: {SHA}cRDtpNCeBiql5KOQsKVyrA0sAiA=
+postalAddress: Houston, US
+mail: admin@skeleton.xx
+sambaDomainName: SKELETON
+sambaKickoffTime: 2147483647
+loginShell: /bin/bash
+sn: Administrator
+cn: Administrator
+homeDirectory: /root
+gidNumber: 512
+uidNumber: 500
+l: Houston
+uid: Administrator
+memberOf: cn=Administrators,ou=Groups,dc=skeleton,dc=xx
+
+dn: uid=ad1,ou=Users,dc=skeleton,dc=xx
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: sambaSamAccount
+sambaAcctFlags: [U]
+sambaPwdLastSet: 1564839212
+sambaNTPassword: 7CE21F17C0AEE7FB9CEBA532D0546AD6
+o: SSL Corp
+sambaPrimaryGroupSID: S-1-5-21-3809161173-2687474671-1432921517-513
+sambaSID: S-1-5-21-3809161173-2687474671-1432921517-1001
+mobile: 1112223333
+userPassword: {SHA}cRDtpNCeBiql5KOQsKVyrA0sAiA=
+postalAddress: Houston, US
+mail: ad1@skeleton.xx
+sambaDomainName: SKELETON
+sambaKickoffTime: 2147483647
+loginShell: /bin/bash
+givenName: AD
+homePostalAddress: Houston, US
+displayName: AD User
+sn: User
+cn: AD User
+homeDirectory: /home/ad1
+gidNumber: 513
+uidNumber: 1001
+l: Houston
+uid: ad1

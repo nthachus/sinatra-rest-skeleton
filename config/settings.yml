@@ -10,6 +10,16 @@ default: &default
     aRxP/d2SgTktoMVQLof8U430OtwS30kdGcxef0nScoZyhKti6AN7tHDRpnFu38dGStB3uTsPumbh549ZEb5wDQIDAQAB\n\
     -----END PUBLIC KEY-----\n"
 
+  ldap_servers:
+    - hostname: skeleton-ldap
+      port: 636
+      use_ssl: true
+      username: uid=Administrator,ou=Users,dc=skeleton,dc=xx
+      password: "1234"
+      search_base: dc=skeleton,dc=xx
+      group_search_base: ou=Groups,dc=skeleton,dc=xx
+      allow_auto_create: true
+
 development:
   <<: *default
   jwt_issuer: Skeleton

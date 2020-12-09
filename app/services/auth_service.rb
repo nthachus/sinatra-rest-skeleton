@@ -27,9 +27,10 @@ module Skeleton
     # @param [String] username
     # @param [String] password
     # @return [String] JWT
+    # @raise [ActiveModel::StrictValidationFailed]
     def login(username, password)
-      user = User.find_by(username: username) || User.find_by!(email: username)
-      raise ActiveRecord::RecordNotFound, 'Bad credentials' unless user.authenticate password
+      user = User.has_password.find_by(username: username) || User.has_password.find_by!(email: username)
+      raise ActiveModel::StrictValidationFailed, 'Bad credentials' unless user.authenticate password
 
       do_login user
     end
@@ -66,6 +67,7 @@ module Skeleton
 
     # @param [String] jwt
     # @return [User]
+    # @raise [JWT::DecodeError]
     def authorize(jwt)
       payload = decode_jwt jwt
 

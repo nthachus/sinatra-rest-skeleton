@@ -17,6 +17,7 @@ module Skeleton
     # @param [String] username
     # @param [String] email
     # @return [User]
+    # @raise [ActiveRecord::RecordNotFound]
     def find_first(username, email)
       user = username.blank? ? nil : User.find_by(username: username)
       user = User.find_by(email: email) if !user && email.present?
@@ -25,6 +26,7 @@ module Skeleton
       user
     end
 
+    # @return [Array<User>]
     def find_all
       user_role = User.arel_table[:role]
 

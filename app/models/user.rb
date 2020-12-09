@@ -20,6 +20,7 @@ class User < ActiveRecord::Base
   # Scopes
   default_scope -> { where(deleted_at: nil) }
   scope :deleted, -> { unscoped.where.not(deleted_at: nil) }
+  scope :has_password, -> { where.not(password_digest: nil) }
 
   # @!scope class
   # @!method roles

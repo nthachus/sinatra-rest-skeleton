@@ -4,7 +4,7 @@ require 'net/ldap'
 
 # Active Directory / LDAP service
 class AdLdapService # rubocop:disable Metrics/ClassLength
-  CONFIG = {
+  DEFAULT_CONFIG = {
     default: {
       hostname: 'localhost',
       port: 389,
@@ -44,7 +44,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
   # @param [Hash] config
   def initialize(config)
     type = server_type(config[:auth_method] || config['auth_method'])
-    @config = CONFIG[:default].with_indifferent_access.merge!(CONFIG[type]).merge!(config)
+    @config = DEFAULT_CONFIG[:default].with_indifferent_access.merge!(DEFAULT_CONFIG[type]).merge!(config)
   end
 
   # @param [String] type
@@ -81,7 +81,10 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
     user = bind_dn_test.match?(uid) ? find_by_dn(uid) : find_user(uid)
 
     ldap_client.auth user.dn, password
-    ldap_client.bind ? user : nil
+    return nil unless ldap_client.bind
+
+    service_bind
+    user
   end
 
   # @param [String] uid
@@ -147,7 +150,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
     return nil unless user
     return user.sub(/^.*?\w+=([^,]*).*|(.*?)@.*|.*\\(.*?)$/, '\1\2\3') if user.is_a? String
 
-    user[attr_login]&.first
+    user.first attr_login
   end
 
   # @return [String]
@@ -215,7 +218,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
     return [] if groups.blank?
 
     attr = attr_group_name
-    groups.map { |g| g.first(attr) }
+    groups.map { |g| g.first attr }
   end
 
   # Recursively loop over the parent list

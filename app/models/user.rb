@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
   # @!scope class
   # @!method roles
   #   @return [Hash]
-  enum role: Constants::Roles.new # _suffix: true
+  enum role: Constants::Roles.new, _suffix: true
 
   # Validations
   validates :role, inclusion: { in: roles.keys }

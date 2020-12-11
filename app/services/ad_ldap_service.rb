@@ -131,13 +131,14 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
     total_groups, = walk_group_ancestry(first_level, first_level)
     groups = first_level + total_groups
 
-    patt = /.*?\b#{attr_group_name}=([^,]*).*/i
-    groups.map { |g| g.sub(patt, '\1') }.uniq
+    pattern = /.*?\b#{attr_group_name}=([^,]*).*/i
+    groups.map { |g| g.sub(pattern, '\1') }.uniq
   end
 
   # @return [Array<Net::LDAP::Entry>]
   # @raise [UserNotFoundError]
   def list_users
+    # @type [Array<Net::LDAP::Entry>]
     list = ldap_client.search filter: search_filter, scope: search_scope(config[:search_subtree])
     raise UserNotFoundError if list.blank?
 
@@ -150,7 +151,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
     return nil unless user
     return user.sub(/^.*?\w+=([^,]*).*|(.*?)@.*|.*\\(.*?)$/, '\1\2\3') if user.is_a? String
 
-    user.first attr_login
+    user[attr_login].first
   end
 
   # @return [String]
@@ -210,6 +211,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
   # @param [String] fdn
   # @return [Array<String>]
   def find_groups_by_member(uid, fdn = nil)
+    # @type [Array<Net::LDAP::Entry>]
     groups = ldap_client.search(
       filter: group_filter(uid, fdn),
       scope: search_scope(config[:group_search_subtree]),
@@ -230,6 +232,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
     set = []
 
     group_dns.each do |group_dn|
+      # @type [Array<Net::LDAP::Entry>]
       entry = ldap_client.search base: group_dn, scope: Net::LDAP::SearchScope_BaseObject, attributes: [attr_group]
 
       groups = entry&.first ? entry.first[attr_group] : nil

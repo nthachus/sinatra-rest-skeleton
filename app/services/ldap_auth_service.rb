@@ -76,30 +76,31 @@ module Skeleton
     def save_on_authenticated(username, ldap_user, config, is_admin)
       # If LDAP user has been stored?
       user = User.find_by username: username
-      return sync_with_ldap_user(user, ldap_user, config, username) if user&.id
+      return sync_with_ldap_user(user, ldap_user, config, username, true) if user&.id
 
       # Try to find stored LDAP user by email
       email = get_ldap_user_email ldap_user, config, username
       user = User.find_by email: email
       return sync_with_ldap_user(user, ldap_user, config, username) if user&.id
+
       return nil unless config[:allow_auto_create]
 
       # Store user if login successful
-      model = { username: username, email: email }
-      model[:role] = Constants::Roles::ADMIN if is_admin
-      model[:name], model[:profile] = get_ldap_user_info ldap_user, config, username
-      User.create! model
+      name, profile = get_ldap_user_info ldap_user, config, username
+      model = { role: is_admin ? Constants::Roles::ADMIN : nil, username: username, email: email, name: name, profile: profile }
+      User.create! model.compact
     end
 
     # @param [User] user
     # @param [Net::LDAP::Entry] ldap_user
     # @param [Hash] config
     # @param [String] username
+    # @param [#nil?] sync_email
     # @return [User]
-    def sync_with_ldap_user(user, ldap_user, config, username)
+    def sync_with_ldap_user(user, ldap_user, config, username, sync_email = nil)
       return user unless config[:allow_auto_sync]
 
-      # TODO: Update email?
+      user.email = get_ldap_user_email ldap_user, config, username if sync_email && config[:allow_auto_sync].is_a?(TrueClass)
       user.name, user.profile = get_ldap_user_info ldap_user, config, username
       user.save!
 
@@ -117,6 +118,7 @@ module Skeleton
     end
 
     LDAP_USER_PROFILE_MAP = {
+      company: %i[company o],
       phone: %i[mobile homePhone telephoneNumber],
       address: %i[homePostalAddress postalAddress]
     }.freeze

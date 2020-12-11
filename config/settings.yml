@@ -19,6 +19,7 @@ default: &default
       search_base: dc=skeleton,dc=xx
       group_search_base: ou=Groups,dc=skeleton,dc=xx
       allow_auto_create: true
+      allow_auto_sync: true
 
 development:
   <<: *default

@@ -3,15 +3,15 @@
 require 'sinatra/reloader'
 
 module Skeleton
-  # To reload modified files during development
   class Application < Sinatra::Base
-    # :nocov:
+    # To reload modified files during development
     configure :development do
+      # :nocov:
       register Sinatra::Reloader
 
       also_reload File.expand_path('../../app/**/*.rb', __dir__)
       dont_reload File.expand_path('../../vendor/**', __dir__)
+      # :nocov:
     end
-    # :nocov:
   end
 end

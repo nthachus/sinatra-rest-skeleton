@@ -70,6 +70,8 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
   def service_bind
     ldap_client.auth config[:username], config[:password]
     raise AuthorizationError, "Could not bind to #{config[:auth_method]} user: #{config[:username]}" unless ldap_client.bind
+
+    yield if block_given?
   end
 
   # @param [String] uid
@@ -81,10 +83,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
     user = bind_dn_test.match?(uid) ? find_by_dn(uid) : find_user(uid)
 
     ldap_client.auth user.dn, password
-    return nil unless ldap_client.bind
-
-    service_bind
-    user
+    ldap_client.bind ? user : nil
   end
 
   # @param [String] uid
@@ -93,7 +92,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
   def find_user(uid)
     # @type [Array<Net::LDAP::Entry>]
     users = ldap_client.search filter: name_filter(uid), size: 1
-    raise UserNotFoundError if users.blank?
+    raise UserNotFoundError, uid if users.blank?
 
     users.first
   end
@@ -104,7 +103,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
   def find_by_dn(uid)
     # @type [Array<Net::LDAP::Entry>]
     users = ldap_client.search base: uid, scope: Net::LDAP::SearchScope_BaseObject
-    raise UserNotFoundError if users.blank?
+    raise UserNotFoundError, uid if users.blank?
 
     users.first
   end
@@ -235,7 +234,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
       # @type [Array<Net::LDAP::Entry>]
       entry = ldap_client.search base: group_dn, scope: Net::LDAP::SearchScope_BaseObject, attributes: [attr_group]
 
-      groups = entry&.first ? entry.first[attr_group] : nil
+      groups = entry.respond_to?(:first) ? entry.first[attr_group] : nil
       next if groups.blank?
 
       groups -= known_groups

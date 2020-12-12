@@ -11,7 +11,7 @@ class AuthenticationController < Skeleton::Application
     rescue ActiveRecord::RecordNotFound => e
       # Authenticate with AD/LDAP
       user = ldap_auth_service.authenticate @params[:username], @params[:password]
-      bad_request json_error(I18n.t('app.invalid_credentials'), e.to_s) unless user&.id
+      bad_request json_error(I18n.t('app.invalid_credentials'), e.to_s) unless user
 
       json jwt: auth_service.do_login(user)
     rescue ActiveModel::StrictValidationFailed => e

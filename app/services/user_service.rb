@@ -21,7 +21,7 @@ module Skeleton
     def find_first(username, email)
       user = username.blank? ? nil : User.find_by(username: username)
       user = User.find_by(email: email) if !user && email.present?
-      raise ActiveRecord::RecordNotFound, 'User not found' unless user&.id
+      raise ActiveRecord::RecordNotFound, 'User not found' unless user
 
       user
     end

@@ -72,7 +72,7 @@ module Skeleton
       payload = decode_jwt jwt
 
       user = User.find_by id: payload[:sub]
-      raise JWT::InvalidSubError, 'User not found' unless user&.id
+      raise JWT::InvalidSubError, 'User not found' unless user
 
       user.session = user.sessions.find_by key: payload[:jti]
       raise JWT::InvalidJtiError, 'Session not found' unless user.session

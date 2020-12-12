@@ -58,7 +58,7 @@ module Skeleton
       return nil unless user
 
       uid = fluff.get_user_login user
-      groups = uid ? fluff.find_user_groups(user, uid) : nil
+      groups = uid ? fluff.service_bind { fluff.find_user_groups(user, uid) } : nil
       # DEBUG
       @app.logger.debug "LDAP authenticated for: #{uid.inspect} - #{groups.inspect}"
 
@@ -66,6 +66,7 @@ module Skeleton
     rescue AdLdapService::UserNotFoundError => e
       # If user not found?
       @app.logger.warn e.inspect
+      nil
     end
 
     # @param [String] username
@@ -76,12 +77,12 @@ module Skeleton
     def save_on_authenticated(username, ldap_user, config, is_admin)
       # If LDAP user has been stored?
       user = User.find_by username: username
-      return sync_with_ldap_user(user, ldap_user, config, username, true) if user&.id
+      return sync_with_ldap_user(user, ldap_user, config, username, true) if user
 
       # Try to find stored LDAP user by email
       email = get_ldap_user_email ldap_user, config, username
       user = User.find_by email: email
-      return sync_with_ldap_user(user, ldap_user, config, username) if user&.id
+      return sync_with_ldap_user(user, ldap_user, config, username) if user
 
       return nil unless config[:allow_auto_create]
 

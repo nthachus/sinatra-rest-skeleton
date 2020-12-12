@@ -11,7 +11,7 @@ module Skeleton
     # Global settings
     set :root, File.expand_path('..', __dir__)
     disable :static
-    enable :method_override
+    enable :method_override, :dump_errors
 
     # Load application settings
     register Sinatra::ConfigFile
@@ -25,23 +25,22 @@ module Skeleton
       I18n.fallbacks.defaults = [I18n.default_locale]
     end
 
-    # :nocov:
-    configure :development do
+    configure :development, :test do
       # Logging with DEBUG level
       set :logging, 0
     end
 
     configure :production do
+      # :nocov:
       set :logging, nil
       use Rack::Logger
+      # :nocov:
     end
-    # :nocov:
 
     # Setup the database
     register Sinatra::ActiveRecordExtension
 
     # Response JSON with the default charset
-    # noinspection RubyResolve
     settings.add_charset << %r{/json$}
   end
 end

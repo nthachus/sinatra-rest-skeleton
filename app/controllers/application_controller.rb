@@ -6,6 +6,7 @@ class ApplicationController < Skeleton::Application
   enable :static
 
   get '/' do
+    # noinspection RailsI18nInspection
     json I18n.t('app.welcome')
   end
 

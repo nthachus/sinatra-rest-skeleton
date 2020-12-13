@@ -34,6 +34,8 @@ module Skeleton
         ldap_user, uid, groups, config = do_authenticate username, password, auth_server
         next unless ldap_user
 
+        @app.logger.debug "LDAP authenticated user: #{ldap_user.inspect}"
+
         # Is AD/LDAP Administrator?
         is_admin = groups&.any? { |s| s =~ /\bAdmin(istrator)?s?\b/i }
 
@@ -60,7 +62,7 @@ module Skeleton
       uid = fluff.get_user_login user
       groups = uid ? fluff.service_bind { fluff.find_user_groups(user, uid) } : nil
       # DEBUG
-      @app.logger.debug "LDAP authenticated for: #{uid.inspect} - #{groups.inspect}"
+      @app.logger.info "LDAP authenticated for: #{uid.inspect} - #{groups.inspect}"
 
       [user, uid, groups, fluff.config]
     rescue AdLdapService::UserNotFoundError => e

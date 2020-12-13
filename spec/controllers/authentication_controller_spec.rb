@@ -42,10 +42,16 @@ RSpec.describe AuthenticationController do
   end
 
   it 'logins with existing LDAP user' do
-    post '/login', '{"username":"Administrator","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
-    expect(last_response).to be_ok
-    expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
-    expect(User.find(1).profile).not_to be_blank
+    auth_server = @app.send(:ldap_servers).first
+    auth_server['search_group'] = false
+    begin
+      post '/login', '{"username":"Administrator","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
+      expect(last_response).to be_ok
+      expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
+      expect(User.find(1).profile).not_to be_blank
+    ensure
+      auth_server.delete 'search_group'
+    end
   end
 
   it 'logins with non-exist LDAP user' do

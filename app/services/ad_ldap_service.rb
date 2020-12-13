@@ -91,7 +91,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
   # @raise [UserNotFoundError]
   def find_user(uid)
     # @type [Array<Net::LDAP::Entry>]
-    users = ldap_client.search filter: name_filter(uid), size: 1
+    users = ldap_client.search filter: name_filter(uid), size: 1, attributes: user_attrs
     raise UserNotFoundError, uid if users.blank?
 
     users.first
@@ -102,10 +102,17 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
   # @raise [UserNotFoundError]
   def find_by_dn(uid)
     # @type [Array<Net::LDAP::Entry>]
-    users = ldap_client.search base: uid, scope: Net::LDAP::SearchScope_BaseObject
+    users = ldap_client.search base: uid, scope: Net::LDAP::SearchScope_BaseObject, attributes: user_attrs
     raise UserNotFoundError, uid if users.blank?
 
     users.first
+  end
+
+  # @return [Array<String>]
+  def user_attrs
+    return @user_attrs if instance_variable_defined?(:@user_attrs)
+
+    @user_attrs = config[:search_group] || server_type == :active_directory ? nil : ['*', attr_group]
   end
 
   # @return [String]
@@ -138,7 +145,7 @@ class AdLdapService # rubocop:disable Metrics/ClassLength
   # @raise [UserNotFoundError]
   def list_users
     # @type [Array<Net::LDAP::Entry>]
-    list = ldap_client.search filter: search_filter, scope: search_scope(config[:search_subtree])
+    list = ldap_client.search filter: search_filter, scope: search_scope(config[:search_subtree]), attributes: user_attrs
     raise UserNotFoundError if list.blank?
 
     list

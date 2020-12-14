@@ -14,3 +14,4 @@ en:
 
     invalid_ssl_client: Invalid SSL client certificate.
     invalid_credentials: Invalid username or password.
+    invalid_parameters: "Invalid parameters: %{values}"

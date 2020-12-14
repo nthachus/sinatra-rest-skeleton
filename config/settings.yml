@@ -1,8 +1,56 @@
 default: &default
   jwt_secret: skeleton
-  jwt_lifetime: 7200
+  jwt_lifetime: 900
 
   ssl_client_env_key: HTTP_X_SSL_CLIENT_CERT
+  ssl_signer_pub_key: "-----BEGIN PUBLIC KEY-----\n\
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAz0FhI5u0D3PK09j5sOYUPGR8snm0pbTFg937CLXFOYGxEToN2bmpaA7L
+    xD+tWbffwobCIPTcu+uC1NdqZDbHyPuQ8jN++QvabAF2W+2bq23KHTlpwT6KKy8GjZHBlBAgebQ8Se06X55LL60AbJ27xCVVM4Mv
+    OibgpdCNsLXVNbc0o95opMl+/7P/PF1UmpnFC4jX8950BEsruDqRYrXlihx8GZpBHqXs7RrXwvBsmnBIRdLW1Dp0RFYwwujDCuP7
+    aRxP/d2SgTktoMVQLof8U430OtwS30kdGcxef0nScoZyhKti6AN7tHDRpnFu38dGStB3uTsPumbh549ZEb5wDQIDAQAB\n\
+    -----END PUBLIC KEY-----\n"
+
+  upload_tmp_path: ./storage/tmp
+  user_file_path: "./storage/files/%u"
+
+development:
+  <<: *default
+  jwt_issuer: Skeleton
+
+  ldap_servers:
+    - hostname: skeleton-ldap
+      port: 636
+      use_ssl: true
+      username: uid=Administrator,ou=Users,dc=skeleton,dc=xx
+      password: "1234"
+      search_base: dc=skeleton,dc=xx
+      group_search_base: ou=Groups,dc=skeleton,dc=xx
+      allow_auto_create: true
+
+  max_upload_size: 104857600
+
+test:
+  <<: *default
+  jwt_issuer: Skeleton
+
+  ldap_servers:
+    - hostname: skeleton-ldap
+      port: 636
+      use_ssl: true
+      username: uid=Administrator,ou=Users,dc=skeleton,dc=xx
+      password: "1234"
+      search_base: dc=skeleton,dc=xx
+      group_search_base: ou=Groups,dc=skeleton,dc=xx
+      allow_auto_create: true
+      allow_auto_sync: true
+
+  max_upload_size: 4194304
+
+production:
+  <<: *default
+  jwt_issuer: Production
+  jwt_lifetime: 7200
+
   ssl_signer_pub_key: "-----BEGIN PUBLIC KEY-----\n\
     MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAz0FhI5u0D3PK09j5sOYUPGR8snm0pbTFg937CLXFOYGxEToN2bmpaA7L
     xD+tWbffwobCIPTcu+uC1NdqZDbHyPuQ8jN++QvabAF2W+2bq23KHTlpwT6KKy8GjZHBlBAgebQ8Se06X55LL60AbJ27xCVVM4Mv
@@ -21,15 +69,4 @@ default: &default
       allow_auto_create: true
       allow_auto_sync: 1
 
-development:
-  <<: *default
-  jwt_issuer: Skeleton
-  jwt_lifetime: 900
-
-test:
-  <<: *default
-  jwt_issuer: Skeleton
-
-production:
-  <<: *default
-  jwt_issuer: Production
+  max_upload_size: 4294967296

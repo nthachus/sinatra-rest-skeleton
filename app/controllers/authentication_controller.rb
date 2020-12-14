@@ -6,11 +6,11 @@ class AuthenticationController < Skeleton::Application
 
   post '/login', needs: %i[username password] do
     begin
-      jwt = auth_service.login @params[:username], @params[:password]
+      jwt = auth_service.login params[:username], params[:password]
       json jwt: jwt
     rescue ActiveRecord::RecordNotFound => e
       # Authenticate with AD/LDAP
-      user = ldap_auth_service.authenticate @params[:username], @params[:password]
+      user = ldap_auth_service.authenticate params[:username], params[:password]
       bad_request json_error(I18n.t('app.invalid_credentials'), e.to_s) unless user
 
       json jwt: auth_service.do_login(user)

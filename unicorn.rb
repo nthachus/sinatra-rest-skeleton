@@ -25,6 +25,9 @@ stdout_path "#{@dir}/log/unicorn.stdout.log"
 # Combine Ruby 2.0.0+ with "preload_app true" for memory savings
 preload_app true
 
+# Chunk size for upload
+client_body_buffer_size 4_194_304
+
 before_fork do |_server, _worker|
   # Boot the application
   ActiveRecord::Base.connection.disconnect! if defined?(ActiveRecord::Base)

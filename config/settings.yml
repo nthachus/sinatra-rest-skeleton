@@ -10,7 +10,7 @@ default: &default
     aRxP/d2SgTktoMVQLof8U430OtwS30kdGcxef0nScoZyhKti6AN7tHDRpnFu38dGStB3uTsPumbh549ZEb5wDQIDAQAB\n\
     -----END PUBLIC KEY-----\n"
 
-  upload_tmp_path: ./storage/tmp
+  upload_tmp_path: "./storage/tmp/%u"
   user_file_path: "./storage/files/%u"
 
 development:
@@ -27,7 +27,7 @@ development:
       group_search_base: ou=Groups,dc=skeleton,dc=xx
       allow_auto_create: true
 
-  max_upload_size: 104857600
+  max_upload_size: 8388608
 
 test:
   <<: *default
@@ -44,7 +44,7 @@ test:
       allow_auto_create: true
       allow_auto_sync: true
 
-  max_upload_size: 4194304
+  max_upload_size: 2097152
 
 production:
   <<: *default

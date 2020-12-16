@@ -61,7 +61,7 @@ module Skeleton
         jti: session_key
       )
 
-      @app.logger.debug "Create JWT for: #{payload.inspect}"
+      @app.logger.debug "Create JWT for: #{payload}"
       JWT.encode payload, @app.settings.jwt_secret
     end
 
@@ -88,7 +88,7 @@ module Skeleton
       decoded = JWT.decode jwt, @app.settings.jwt_secret, true, verify_iss: true, iss: @app.settings.jwt_issuer, verify_iat: true
 
       payload = decoded.first.with_indifferent_access
-      @app.logger.debug "Authorize JWT payload: #{payload.inspect}"
+      @app.logger.debug "Authorize JWT payload: #{payload}"
 
       payload
     end

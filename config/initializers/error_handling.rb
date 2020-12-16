@@ -8,7 +8,7 @@ module Skeleton
     disable :show_exceptions, :raise_errors
 
     not_found do
-      json_error I18n.t('app.resource_not_found')
+      json_error I18n.t('app.resource_not_found') unless content_type&.include? mime_type(settings.json_content_type)
     end
 
     error do

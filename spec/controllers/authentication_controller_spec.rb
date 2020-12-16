@@ -34,7 +34,7 @@ RSpec.describe AuthenticationController do
   end
 
   it 'renews user token successfully' do
-    skip 'Needs to login first' if @jwt.blank?
+    skip 'needs to login first' if @jwt.blank?
     header 'Authorization', "Bearer #{@jwt.last}"
     get '/token'
     expect(last_response).to be_ok

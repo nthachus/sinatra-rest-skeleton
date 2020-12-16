@@ -15,7 +15,7 @@ class AuthenticationController < Skeleton::Application
 
       json jwt: auth_service.do_login(user)
     rescue ActiveModel::StrictValidationFailed => e
-      logger.warn e.inspect
+      logger.warn StackTraceArray.new(e, 0)
       bad_request json_error(I18n.t('app.invalid_credentials'), e.to_s)
     end
   end

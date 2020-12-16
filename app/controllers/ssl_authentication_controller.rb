@@ -9,7 +9,7 @@ class SslAuthenticationController < Skeleton::Application
     bad_request json_error(I18n.t('app.missing_parameters', values: 'SSL Client')) if ssl_client.blank?
 
     ssl_client = URI.decode_www_form_component ssl_client, settings.default_encoding
-    logger.debug 'Login with SSL client: ' + ssl_client.inspect
+    logger.debug "Login with SSL client: #{ssl_client}"
 
     begin
       client_cert = parse_ssl_client ssl_client
@@ -17,7 +17,7 @@ class SslAuthenticationController < Skeleton::Application
       user = user_service.find_first client_cert['CN'], client_cert['emailAddress']
       json jwt: auth_service.do_login(user)
     rescue OpenSSL::OpenSSLError, ActiveRecord::RecordNotFound => e
-      logger.warn e.inspect
+      logger.warn StackTraceArray.new(e, 0)
       bad_request json_error(I18n.t('app.invalid_ssl_client'), e.to_s)
     end
   end

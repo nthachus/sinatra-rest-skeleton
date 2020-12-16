@@ -14,7 +14,7 @@ module Skeleton
           # noinspection RailsParamDefResolve
           @current_user = respond_to?(:do_authorize, true) ? send(:do_authorize, req.params) : nil
         rescue JWT::ExpiredSignature => e
-          logger.warn e.inspect
+          logger.warn StackTraceArray.new(e, 0)
           unauthorized json_error(I18n.t('app.expired_token'), settings.production? ? nil : e.to_s)
         rescue JWT::DecodeError => e
           logger.error(stacktrace = StackTraceArray.new(e))

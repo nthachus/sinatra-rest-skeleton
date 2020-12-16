@@ -15,3 +15,7 @@ en:
     invalid_ssl_client: Invalid SSL client certificate.
     invalid_credentials: Invalid username or password.
     invalid_parameters: "Invalid parameters: %{values}"
+
+    file_size_too_large: The file size is too large.
+    file_already_exists: The file already exists.
+    upload_file_not_found: Upload file not found.

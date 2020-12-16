@@ -15,3 +15,7 @@ ja:
     invalid_ssl_client: 無効のSSLクライアント証明書。
     invalid_credentials: 無効のユーザーネームまたはパスワード。
     invalid_parameters: "無効のパラメータ：%{values}"
+
+    file_size_too_large: ファイルサイズは大きすぎる。
+    file_already_exists: ファイルはすでに存在する。
+    upload_file_not_found: アップロードファイルは見つけられなかった。

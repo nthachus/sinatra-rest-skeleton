@@ -40,6 +40,6 @@ RSpec.describe UserSession do
     subject.user_id = -1
     subject.key = 'ssl-xx'
     expect(subject).to be_valid
-    expect { subject.save }.to raise_error(/duplicate key value violates unique/)
+    expect { subject.save }.to raise_error(ActiveRecord::RecordNotUnique, /duplicate key value violates unique/)
   end
 end

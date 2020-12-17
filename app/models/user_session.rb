@@ -10,7 +10,7 @@
 class UserSession < ActiveRecord::Base
   # Validations
   validates :user_id, numericality: { only_integer: true }
-  validates :key, presence: true, length: { maximum: 50 } # uniqueness: { allow_blank: true }
+  validates :key, presence: true, length: { maximum: 50, allow_blank: true } # uniqueness: { allow_blank: true }
 
   # Associations
   belongs_to :user, inverse_of: :sessions

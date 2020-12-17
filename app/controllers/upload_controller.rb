@@ -25,41 +25,74 @@ class UploadController < Skeleton::Application
 
   # Create file from request and return file URL
   post '/', authorize: [] do
-    metadata = parse_metadata env['HTTP_UPLOAD_METADATA']
-    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata')) unless metadata
-    bad_request json_error(I18n.t('app.missing_parameters', values: 'File name')) if object_empty? metadata[:name]
+    data = parse_metadata env['HTTP_UPLOAD_METADATA']
+    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata')) unless data
+    bad_request json_error(I18n.t('app.missing_parameters', values: 'File name')) if data[:name].nil_or_empty?
 
-    metadata[:size] = suppress(TypeError, ArgumentError) { Integer(env['HTTP_UPLOAD_LENGTH'] || metadata[:size]) }
-    bad_request json_error(I18n.t('app.missing_parameters', values: 'File size')) if metadata[:size].blank?
-    error 413, json_error(I18n.t('app.file_size_too_large')) if metadata[:size] > settings.max_upload_size
+    data[:size] = suppress(TypeError, ArgumentError) { Integer(env['HTTP_UPLOAD_LENGTH'] || data[:size]) }
+    bad_request json_error(I18n.t('app.missing_parameters', values: 'File size')) if data[:size].blank?
+    error 413, json_error(I18n.t('app.file_size_too_large')) if data[:size] > settings.max_upload_size
 
-    file_id = upload_service.create_file metadata
-    error 409, json_error(I18n.t('app.file_already_exists', value: metadata[:name])) unless file_id
-
-    headers['Location'] = "#{request.path}/#{file_id}"
+    meta = create_upload data
+    headers['Location'] = "#{request.path}/#{meta.key}"
     return_code = 201
 
     if request.media_type == TUS_CONTENT_TYPE
-      written = upload_service.write_file file_id, request.body, Integer(request.content_length), metadata[:size]
+      written = upload_service.write_file meta, request.body, Integer(request.content_length)
       headers['Upload-Offset'] = written.to_s
-      return_code = 200 if written.nonzero? && written < metadata[:size]
+      return_code = 200 if written.nonzero? && written < meta.size
     end
 
     [return_code, nil]
   end
 
+  FILE_ROUTE = %r{/([0-9a-f]+)}.freeze
+
+  head FILE_ROUTE, authorize: [] do |file_id|
+    begin
+      meta = upload_service.find_upload_meta file_id
+      headers 'Upload-Offset' => meta.real_file_size.to_s, 'Upload-Metadata' => serialize_metadata(meta.to_metadata)
+
+      nil
+    rescue ActiveRecord::RecordNotFound => e
+      logger.warn "#{e}  #{current_user.id} - #{file_id.inspect}"
+      not_found
+    end
+  end
+
   # Delete upload by ID
-  delete %r{/([0-9a-f]+)}, authorize: [] do |file_id|
+  delete FILE_ROUTE, authorize: [] do |file_id|
     logger.info "Delete upload file: #{file_id.inspect}"
 
-    file_path = upload_service.upload_file_path file_id
-    not_found json_error(I18n.t('app.upload_file_not_found')) unless File.file? file_path
-
-    upload_service.delete_file file_path
-    [204, nil]
+    begin
+      upload_service.delete_file file_id
+      [204, nil]
+    rescue ActiveRecord::RecordNotFound
+      not_found json_error(I18n.t('app.upload_file_not_found'))
+    end
   end
 
   private
+
+  # @param [Hash] meta
+  # @return [Upload]
+  def create_upload(meta)
+    upload_service.create_file meta
+  rescue ActiveRecord::RecordNotUnique
+    error 409, json_error(I18n.t('app.file_already_exists', value: meta[:name]))
+  rescue ActiveRecord::RecordInvalid => e
+    # logger.warn e.to_s
+    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata'), e.record.errors.full_messages)
+  end
+
+  # @param [Hash] meta
+  # @return [String]
+  def serialize_metadata(meta)
+    meta.select { |_, v| v }.map do |k, v|
+      key = k.camelize :lower
+      v.is_a?(TrueClass) ? key : "#{key} #{Base64.strict_encode64(v.to_s)}"
+    end.join(',')
+  end
 
   # @param [String] encoded
   # @return [Hash]
@@ -67,9 +100,9 @@ class UploadController < Skeleton::Application
     return {} if encoded.blank?
 
     Hash[
-      encoded.lstrip.split(/(,\s*)+/).map do |kv|
+      encoded.lstrip.split(/(?:,\s*)+/).map do |kv|
         k, v = kv.split(/\s+/, 2)
-        [k.to_sym, v.nil? ? true : force_encoding(Base64.strict_decode64(v))]
+        [k.underscore.to_sym, v.nil? ? true : force_encoding(Base64.safe_decode64(v))]
       end
     ]
   rescue ArgumentError => e

@@ -29,18 +29,20 @@ class User < ActiveRecord::Base
 
   # Validations
   validates :role, inclusion: { in: roles.keys }
-  validates :username, presence: true, length: { maximum: 255 }, uniqueness: { allow_blank: true }
+  validates :username, presence: true, length: { maximum: 255, allow_blank: true }
+  validates_uniqueness_of :username, if: proc { |o| o.username.present? && o.username.length <= 255 }
 
   validates_length_of :password, maximum: MAX_PASSWORD_LENGTH_ALLOWED
-  validates_confirmation_of :password, allow_blank: true
+  validates_confirmation_of :password, allow_nil: true
 
-  validates :name, presence: true, length: { maximum: 255 }
-  validates :email, length: { maximum: 255, allow_nil: true }, uniqueness: { case_sensitive: false, allow_nil: true }
-  validates_format_of :email, with: URI::MailTo::EMAIL_REGEXP, allow_nil: true
+  validates :name, presence: true, length: { maximum: 255, allow_blank: true }
+  validates :email, length: { maximum: 255 }, format: { with: URI::MailTo::EMAIL_REGEXP, allow_nil: true }
+  validates_uniqueness_of :email, case_sensitive: false, if: proc { |o| o.email && o.email.length <= 255 }
   validates_numericality_of :created_by, :updated_by, :deleted_by, only_integer: true, allow_nil: true
 
   # Associations
   has_many :sessions, class_name: :UserSession, inverse_of: :user
+  has_many :uploads, inverse_of: :user
 
   # @return [UserSession]
   attr_accessor :session

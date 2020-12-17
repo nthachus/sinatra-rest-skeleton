@@ -63,22 +63,51 @@ RSpec.describe UploadController do
   end
 
   it 'uploads with file-size limit exceeded' do
-    header 'Upload-Metadata', 'name YeS4rdCv, size NDE5NDMwNA=='
+    header 'Upload-Metadata', ' name YeS4rdCv, ,size NDE5NDMwNA'
     post '/'
     expect(last_response).to have_attributes(status: 413)
     expect(last_response.headers).to have_key('Tus-Resumable')
     expect(last_response.body).to eq('{"error":"The file size is too large."}')
   end
 
-  it 'uploads with the first chunk' do
-    header 'Upload-Metadata', 'name YeS4rdCv'
-    header 'Upload-Length', '6'
-    post '/', 'hello', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
+  it 'uploads with existing filename' do
+    header 'Upload-Metadata', 'name eHg='
+    header 'Upload-Length', '-1'
+    post '/'
+    expect(last_response).to have_attributes(status: 409)
+    expect(last_response.body).to eq('{"error":"The file already exists."}')
+  end
 
+  it 'uploads with invalid file modified-date' do
+    header 'Upload-Metadata', ' name YeS4rdCv, size LTE=,, lastModified IQ='
+    post '/'
+    expect(last_response).to be_bad_request
+    expect(last_response.body).to eq('{"error":"Invalid parameters: Metadata","extra":["Last modified is not a number"]}')
+  end
+
+  it 'uploads with the first chunk' do
+    header 'Upload-Metadata', 'name YeS4rdCv, size MTI, , is_confidential'
+    post '/', 'hello', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_ok
     expect(last_response.body).to be_blank
     expect(last_response.headers).to include('Upload-Offset' => '5') & include('Location' => match(%r{/[0-9a-f]+$}))
     @file_id << last_response.headers['Location'].sub(%r{^.*/}, '')
+  end
+
+  it 'gets information of non-exist upload' do
+    head "/#{SecureRandom.hex}"
+    expect(last_response).to be_not_found
+    expect(last_response.headers).to have_key('Tus-Resumable')
+    expect(last_response.body).to be_blank
+  end
+
+  it 'gets information of the upload' do
+    skip 'needs to upload first' if @file_id.blank?
+    head "/#{@file_id.first}"
+    expect(last_response).to be_ok
+    expect(last_response.body).to be_blank
+    expect(last_response.headers).to \
+      include('Upload-Offset' => '5') & include('Upload-Metadata' => 'isConfidential,size MTI=,name Li9h5Lit0K8=')
   end
 
   it 'deletes a non-exist upload' do

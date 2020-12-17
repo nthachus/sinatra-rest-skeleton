@@ -10,10 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_02_030208) do
+ActiveRecord::Schema.define(version: 2020_12_17_022834) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "uploads", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "key", limit: 50, null: false
+    t.string "path", limit: 255, default: ".", null: false
+    t.string "filename", limit: 255, null: false
+    t.bigint "size", null: false
+    t.string "mime_type", limit: 255
+    t.bigint "last_modified"
+    t.jsonb "extra", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "created_by"
+    t.bigint "updated_by"
+    t.index ["key"], name: "index_uploads_on_key", unique: true
+    t.index ["user_id", "path", "filename"], name: "index_uploads_on_user_id_and_path_and_filename", unique: true
+    t.index ["user_id"], name: "index_uploads_on_user_id"
+  end
 
   create_table "user_sessions", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -42,5 +60,6 @@ ActiveRecord::Schema.define(version: 2020_12_02_030208) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "uploads", "users", on_update: :cascade, on_delete: :cascade
   add_foreign_key "user_sessions", "users", on_update: :cascade, on_delete: :cascade
 end

@@ -33,7 +33,7 @@ class UploadController < Skeleton::Application
     bad_request json_error(I18n.t('app.missing_parameters', values: 'File size')) if data[:size].blank?
     error 413, json_error(I18n.t('app.file_size_too_large')) if data[:size] > settings.max_upload_size
 
-    meta = create_upload data
+    meta = create_upload_meta data
     headers['Location'] = "#{request.path}/#{meta.key}"
     return_code = 201
 
@@ -46,22 +46,44 @@ class UploadController < Skeleton::Application
     [return_code, nil]
   end
 
-  FILE_ROUTE = %r{/([0-9a-f]+)}.freeze
+  FILE_ID_ROUTE = %r{/([0-9a-f]+)}.freeze
 
-  head FILE_ROUTE, authorize: [] do |file_id|
+  # Write chunk to file and return chunk offset
+  patch FILE_ID_ROUTE, authorize: [] do |file_id|
+    meta = upload_service.find_upload_meta file_id
+    not_found json_error(I18n.t('app.upload_file_not_found')) unless meta
+
+    offset = suppress(TypeError, ArgumentError) { Integer(env['HTTP_UPLOAD_OFFSET']) }
+    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Offset')) if offset.blank? || offset.negative?
+
+    data = parse_metadata env['HTTP_UPLOAD_METADATA']
+    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata')) unless data
+    data.delete(:name) if data[:name].nil_or_empty?
+
+    data[:size] = suppress(TypeError, ArgumentError) { Integer(data[:size]) } unless data[:size].blank?
+    data.delete(:size) if data[:size].blank?
+    error 413, json_error(I18n.t('app.file_size_too_large')) if data[:size]&.send(:>, settings.max_upload_size)
+
+    meta = update_upload_meta meta, data
+    written = upload_service.write_file meta, request.body, Integer(request.content_length), offset
+
+    [204, { 'Upload-Offset' => written.to_s }, nil]
+  end
+
+  head FILE_ID_ROUTE, authorize: [] do |file_id|
     begin
-      meta = upload_service.find_upload_meta file_id
-      headers 'Upload-Offset' => meta.real_file_size.to_s, 'Upload-Metadata' => serialize_metadata(meta.to_metadata)
+      meta = upload_service.find_upload_meta! file_id
+      headers 'Upload-Offset' => meta.tmp_file_size.to_s, 'Upload-Metadata' => serialize_metadata(meta.to_metadata)
 
       nil
     rescue ActiveRecord::RecordNotFound => e
-      logger.warn "#{e}  #{current_user.id} - #{file_id.inspect}"
+      logger.warn "#{e} - #{file_id.inspect}"
       not_found
     end
   end
 
   # Delete upload by ID
-  delete FILE_ROUTE, authorize: [] do |file_id|
+  delete FILE_ID_ROUTE, authorize: [] do |file_id|
     logger.info "Delete upload file: #{file_id.inspect}"
 
     begin
@@ -76,10 +98,22 @@ class UploadController < Skeleton::Application
 
   # @param [Hash] meta
   # @return [Upload]
-  def create_upload(meta)
+  def create_upload_meta(meta)
     upload_service.create_file meta
   rescue ActiveRecord::RecordNotUnique
     error 409, json_error(I18n.t('app.file_already_exists', value: meta[:name]))
+  rescue ActiveRecord::RecordInvalid => e
+    # logger.warn e.to_s
+    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata'), e.record.errors.full_messages)
+  end
+
+  # @param [Upload] meta
+  # @param [Hash] data
+  # @return [Upload]
+  def update_upload_meta(meta, data)
+    upload_service.update_file meta, data
+  rescue ActiveRecord::RecordNotUnique
+    error 409, json_error(I18n.t('app.file_already_exists', value: data[:name]))
   rescue ActiveRecord::RecordInvalid => e
     # logger.warn e.to_s
     bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata'), e.record.errors.full_messages)

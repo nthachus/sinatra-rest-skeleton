@@ -70,14 +70,6 @@ RSpec.describe UploadController do
     expect(last_response.body).to eq('{"error":"The file size is too large."}')
   end
 
-  it 'uploads with existing filename' do
-    header 'Upload-Metadata', 'name eHg='
-    header 'Upload-Length', '-1'
-    post '/'
-    expect(last_response).to have_attributes(status: 409)
-    expect(last_response.body).to eq('{"error":"The file already exists."}')
-  end
-
   it 'uploads with invalid file modified-date' do
     header 'Upload-Metadata', ' name YeS4rdCv, size LTE=,, lastModified IQ='
     post '/'
@@ -85,8 +77,8 @@ RSpec.describe UploadController do
     expect(last_response.body).to eq('{"error":"Invalid parameters: Metadata","extra":["Last modified is not a number"]}')
   end
 
-  it 'uploads with the first chunk' do
-    header 'Upload-Metadata', 'name YeS4rdCv, size MTI, , is_confidential'
+  it 'creates upload with the first chunk' do
+    header 'Upload-Metadata', 'name Li4vYeS4rdCv, size MTI, , is_extra'
     post '/', 'hello', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_ok
     expect(last_response.body).to be_blank
@@ -106,8 +98,74 @@ RSpec.describe UploadController do
     head "/#{@file_id.first}"
     expect(last_response).to be_ok
     expect(last_response.body).to be_blank
-    expect(last_response.headers).to \
-      include('Upload-Offset' => '5') & include('Upload-Metadata' => 'isConfidential,size MTI=,name Li9h5Lit0K8=')
+    expect(last_response.headers).to include('Upload-Offset' => '5') & include('Upload-Metadata' => 'isExtra,name YeS4rdCv,size MTI=')
+  end
+
+  it 'resumes a non-exist upload' do
+    patch "/#{SecureRandom.hex}"
+    expect(last_response).to be_not_found
+    expect(last_response.headers).to have_key('Tus-Resumable')
+    expect(last_response.body).to eq('{"error":"Upload file not found."}')
+  end
+
+  it 'resumes upload without offset' do
+    skip 'needs to upload first' if @file_id.blank?
+    patch "/#{@file_id.first}"
+    expect(last_response).to be_bad_request
+    expect(last_response.body).to eq('{"error":"Invalid parameters: Offset"}')
+  end
+
+  it 'resumes upload with invalid offset' do
+    skip 'needs to upload first' if @file_id.blank?
+    header 'Upload-Offset', ' ! '
+    patch "/#{@file_id.first}"
+    expect(last_response).to be_bad_request
+    expect(last_response.body).to eq('{"error":"Invalid parameters: Offset"}')
+  end
+
+  it 'resumes upload with a negative offset' do
+    skip 'needs to upload first' if @file_id.blank?
+    header 'Upload-Offset', '-1'
+    patch "/#{@file_id.first}"
+    expect(last_response).to be_bad_request
+    expect(last_response.body).to eq('{"error":"Invalid parameters: Offset"}')
+  end
+
+  it 'uploads the third chunk' do
+    skip 'needs to upload first' if @file_id.blank?
+    header 'Upload-Metadata', ' lastModified MTU1ODMwOTY0MzAxMg'
+    header 'Upload-Offset', '7'
+    patch "/#{@file_id.first}", 'or'
+    expect(last_response).to be_no_content
+    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '9')
+  end
+
+  it 'uploads the second chunk' do
+    skip 'needs to upload first' if @file_id.blank?
+    header 'Upload-Offset', '5'
+    patch "/#{@file_id.first}", ' w', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
+    expect(last_response).to be_no_content
+    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '7')
+  end
+
+  it 'uploads the last chunk' do
+    skip 'needs to upload first' if @file_id.blank?
+    header 'Upload-Metadata', ' size MTE , isExtra MA'
+    header 'Upload-Offset', '9'
+    patch "/#{@file_id.first}", 'ld'
+    expect(last_response).to be_no_content
+    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '11')
+
+    path = File.expand_path '../../storage/files/2/a中Я', __dir__
+    expect(Pathname.new(path)).to be_file & have_attributes(size: 11, read: 'hello world', mtime: Time.at(1_558_309_643, 12_000.0))
+  end
+
+  it 'uploads with existing filename' do
+    header 'Upload-Metadata', ' name YeS4rdCv'
+    header 'Upload-Length', '-1'
+    post '/'
+    expect(last_response).to have_attributes(status: 409)
+    expect(last_response.body).to eq('{"error":"The file already exists."}')
   end
 
   it 'deletes a non-exist upload' do

@@ -50,6 +50,6 @@ class User < ActiveRecord::Base
   private
 
   def on_authorized
-    self.class.logger&.info "Authorized session: #{session&.key}"
+    User.logger&.info "Authorized session: #{session&.key}"
   end
 end

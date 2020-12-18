@@ -7,18 +7,17 @@ class CreateUploads < ActiveRecord::Migration[5.2]
       t.references :user, null: false, foreign_key: { on_delete: :cascade, on_update: :cascade }
       t.string :key, limit: 50, null: false, index: { unique: true }
 
-      t.string :path, limit: 255, null: false, default: '.'
-      t.string :filename, limit: 255, null: false
-
+      t.string :name, limit: 255, null: false
       t.bigint :size, null: false
+
       t.string :mime_type, limit: 255
       t.bigint :last_modified # Unix timestamp in milliseconds
-
       t.jsonb :extra, null: false, default: {}
+
       t.timestamps
       t.bigint :created_by, :updated_by
 
-      t.index %i[user_id path filename], unique: true
+      # t.index %i[user_id name], unique: true
     end
   end
 end

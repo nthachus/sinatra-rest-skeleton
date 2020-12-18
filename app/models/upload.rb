@@ -3,8 +3,7 @@
 # @attr [Integer] id
 # @attr [Integer] user_id
 # @attr [String] key
-# @attr [String] path
-# @attr [String] filename
+# @attr [String] name
 # @attr [Integer] size
 # @attr [String] mime_type
 # @attr [Integer] last_modified
@@ -19,13 +18,8 @@ class Upload < ActiveRecord::Base
   validates :user_id, numericality: { only_integer: true }
   validates :key, presence: true, length: { maximum: 50, allow_blank: true } # uniqueness: { allow_blank: true }
 
-  validates_length_of :path, maximum: 255
-  validates :filename, not_empty: true, length: { maximum: 255 }
-  validates_uniqueness_of(
-    :filename,
-    scope: %i[user_id path],
-    if: proc { |o| o.filename && o.user_id.is_a?(Integer) && o.path && o.path.length <= 255 && o.filename.length.between?(1, 255) }
-  )
+  validates :name, not_empty: true, length: { maximum: 255 }
+  # validates_uniqueness_of :name, scope: :user_id, if: proc { |o| o.name && o.user_id.is_a?(Integer) && o.name.length.between?(1, 255) }
 
   validates_numericality_of :size, only_integer: true
   validates_length_of :mime_type, maximum: 255
@@ -34,14 +28,9 @@ class Upload < ActiveRecord::Base
   # Associations
   belongs_to :user, inverse_of: :uploads
 
-  # @return [String]
-  def name
-    filename.nil? ? nil : File.join(path || '.', filename)
-  end
-
   # @param [String] value
   def name=(value)
-    self.filename, self.path = value.nil? ? nil : [File.basename(value), File.dirname(value)]
+    super(value.is_a?(String) ? FileUtils.fix_relative_path(value) : value)
   end
 
   METADATA_KEYS = %i[name size mime_type last_modified].freeze
@@ -49,9 +38,16 @@ class Upload < ActiveRecord::Base
   # @param [Hash] data
   # @param [Hash] overrides
   # @return [self]
-  def self.from_metadata(data, overrides = {})
+  def self.create_from_metadata(data, overrides = {})
     meta = data.dup
-    new meta.extract!(*METADATA_KEYS).merge(extra: meta).merge(overrides)
+    create! meta.extract!(*METADATA_KEYS).merge(extra: meta).merge(overrides)
+  end
+
+  # @param [Hash] data
+  def update_from_metadata(data)
+    meta = data.dup
+    assign_attributes meta.extract!(*METADATA_KEYS).merge(extra: extra.merge(meta))
+    save!
   end
 
   # @return [Hash]
@@ -60,16 +56,32 @@ class Upload < ActiveRecord::Base
   end
 
   # @return [String]
-  def real_file_path
+  def tmp_file_path
     return nil if !user_id.is_a?(Integer) || key.blank?
 
-    File.join File.expand_path(format(Skeleton::Application.settings.user_file_path, user_id), Skeleton::Application.settings.root), key
+    File.join File.expand_path(format(Skeleton::Application.settings.upload_tmp_path, user_id), Skeleton::Application.settings.root), key
   end
 
   # @return [Integer]
-  def real_file_size
-    return nil unless (path = real_file_path)
+  def tmp_file_size
+    return nil unless (path = tmp_file_path)
 
     File.file?(path) ? File.size(path) : -1
+  end
+
+  # @return [String]
+  def out_file_path
+    return nil if !user_id.is_a?(Integer) || name.blank?
+
+    File.join File.expand_path(format(Skeleton::Application.settings.user_file_path, user_id), Skeleton::Application.settings.root), name
+  end
+
+  private
+
+  def on_complete
+    Upload.logger&.info "Upload completed: #{key} - #{name.inspect}"
+
+    File.rename tmp_file_path, FileUtils.ensure_dir_exists(path = out_file_path)
+    File.utime(Time.now, Time.fix_timestamp(last_modified), path) if last_modified
   end
 end

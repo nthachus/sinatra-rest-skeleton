@@ -12,4 +12,4 @@ power_user = User.create! username: 'power', password: '1234', role: Constants::
 UserSession.create! user: power_user, key: 'power-xx'
 
 # Uploads
-Upload.create! user: user, key: 'abc123', filename: 'xx', size: -1
+Upload.create! user: user, key: 'abc123', name: 'xx', size: -1

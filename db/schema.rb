@@ -18,8 +18,7 @@ ActiveRecord::Schema.define(version: 2020_12_17_022834) do
   create_table "uploads", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "key", limit: 50, null: false
-    t.string "path", limit: 255, default: ".", null: false
-    t.string "filename", limit: 255, null: false
+    t.string "name", limit: 255, null: false
     t.bigint "size", null: false
     t.string "mime_type", limit: 255
     t.bigint "last_modified"
@@ -29,7 +28,6 @@ ActiveRecord::Schema.define(version: 2020_12_17_022834) do
     t.bigint "created_by"
     t.bigint "updated_by"
     t.index ["key"], name: "index_uploads_on_key", unique: true
-    t.index ["user_id", "path", "filename"], name: "index_uploads_on_user_id_and_path_and_filename", unique: true
     t.index ["user_id"], name: "index_uploads_on_user_id"
   end
 

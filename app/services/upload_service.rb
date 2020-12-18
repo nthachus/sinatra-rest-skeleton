@@ -22,16 +22,31 @@ module Skeleton
     def create_file(data)
       @app.logger.debug "Create upload file: #{data}"
 
-      meta = Upload.from_metadata data, user: @app.current_user, key: SecureRandom.hex
-      meta.save!
+      Upload.transaction do
+        meta = Upload.create_from_metadata data, user: @app.current_user, key: SecureRandom.hex
+        raise ActiveRecord::RecordNotUnique, meta.name if File.exist? meta.out_file_path
 
-      File.open FileUtils.ensure_dir_exists(meta.real_file_path), 'w' do
+        FileUtils.touch FileUtils.ensure_dir_exists(meta.tmp_file_path)
         meta
       end
-    rescue ActiveRecord::RecordInvalid => e
-      raise ActiveRecord::RecordNotUnique if e.record.errors.details_for?(:filename, :taken)
+    end
 
-      raise
+    # @param [Upload] meta
+    # @param [Hash] data
+    # @option data [String] :name
+    # @option data [Integer] :size
+    # @return [Upload]
+    # @raise [ActiveRecord::RecordNotUnique]
+    def update_file(meta, data)
+      @app.logger.debug "Update upload file: #{meta.key} - #{data}"
+
+      Upload.transaction do
+        meta.update_from_metadata data
+        raise ActiveRecord::RecordNotUnique, meta.name if File.exist? meta.out_file_path
+
+        FileUtils.touch FileUtils.ensure_dir_exists(meta.tmp_file_path)
+        meta
+      end
     end
 
     # @param [Upload] meta
@@ -42,24 +57,25 @@ module Skeleton
     def write_file(meta, io, length, offset = 0)
       @app.logger.info "Write upload file: #{meta.key} - at: #{offset}"
 
-      File.open meta.real_file_path, 'r+b' do |f|
-        unless offset.zero?
-          f.truncate offset if offset > f.size
-          f.seek offset
-        end
+      if meta.size > offset
+        offset += File.open(meta.tmp_file_path, 'r+b') do |f|
+          f.seek offset unless offset.zero?
 
-        IO.copy_stream io, f, [length, meta.size - offset].min
+          IO.copy_stream io, f, [length, meta.size - offset].min
+        end
       end
+
+      on_written meta, offset
     end
 
     # @param [String] file_id
     # @return [Upload]
     # @raise [ActiveRecord::RecordNotFound]
     def delete_file(file_id)
-      meta = find_upload_meta file_id
+      meta = find_upload_meta! file_id
 
-      path = meta.real_file_path
-      FileUtils.remove_file path if File.file? path
+      path = meta.tmp_file_path
+      FileUtils.remove_entry path if File.exist? path
 
       meta.delete
     end
@@ -67,7 +83,23 @@ module Skeleton
     # @param [String] file_id
     # @return [Upload]
     def find_upload_meta(file_id)
+      @app.current_user.uploads.find_by key: file_id
+    end
+
+    # @param [String] file_id
+    # @return [Upload]
+    def find_upload_meta!(file_id)
       @app.current_user.uploads.find_by! key: file_id
+    end
+
+    private
+
+    # @param [Upload] meta
+    # @param [Integer] written
+    # @return [Integer]
+    def on_written(meta, written)
+      meta.send(:on_complete) if written >= meta.size && meta.respond_to?(:on_complete, true)
+      written
     end
   end
 end

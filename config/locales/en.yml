@@ -6,6 +6,7 @@ en:
     function_not_implemented: The function is not implemented.
     bad_json_request: Invalid JSON request.
     missing_parameters: "Missing parameters: %{values}"
+    unsupported_media_type: Unsupported media type.
 
     expired_token: The token has expired.
     invalid_token: The token is invalid.
@@ -17,5 +18,5 @@ en:
     invalid_parameters: "Invalid parameters: %{values}"
 
     file_size_too_large: The file size is too large.
-    file_already_exists: The file already exists.
+    file_already_exists: 'File "%{value}" already exists.'
     upload_file_not_found: Upload file not found.

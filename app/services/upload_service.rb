@@ -15,8 +15,6 @@ module Skeleton
     end
 
     # @param [Hash] data
-    # @option data [String] :name
-    # @option data [Integer] :size
     # @return [Upload]
     # @raise [ActiveRecord::RecordNotUnique]
     def create_file(data)
@@ -26,15 +24,14 @@ module Skeleton
         meta = Upload.create_from_metadata data, user: @app.current_user, key: SecureRandom.hex
         raise ActiveRecord::RecordNotUnique, meta.name if File.exist? meta.out_file_path
 
-        FileUtils.touch FileUtils.ensure_dir_exists(meta.tmp_file_path)
+        # noinspection RubyArgCount
+        FileUtils.touch FileUtils.ensure_dir_exists(meta.tmp_file_path) if meta.size >= 0
         meta
       end
     end
 
     # @param [Upload] meta
     # @param [Hash] data
-    # @option data [String] :name
-    # @option data [Integer] :size
     # @return [Upload]
     # @raise [ActiveRecord::RecordNotUnique]
     def update_file(meta, data)
@@ -44,7 +41,8 @@ module Skeleton
         meta.update_from_metadata data
         raise ActiveRecord::RecordNotUnique, meta.name if File.exist? meta.out_file_path
 
-        FileUtils.touch FileUtils.ensure_dir_exists(meta.tmp_file_path)
+        # noinspection RubyArgCount
+        FileUtils.touch FileUtils.ensure_dir_exists(meta.tmp_file_path) if meta.size >= 0
         meta
       end
     end

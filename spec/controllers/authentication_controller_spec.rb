@@ -19,17 +19,19 @@ RSpec.describe AuthenticationController do
     expect(last_response.body).to match(/"error":"Invalid username or password.","extra":"Bad credentials/)
   end
 
+  JWT_RES_PATTERN = /^{"jwt":"[^"]+"}$/.freeze
+
   it 'logins by username successfully' do
     post '/login', '{"username":"ssl","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_ok
-    expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
+    expect(last_response.body).to match(JWT_RES_PATTERN)
     @jwt << last_response.body[8..-3]
   end
 
   it 'logins by email successfully' do
     post '/login', '{"username":"ssl@skeleton.xx","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_ok
-    expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
+    expect(last_response.body).to match(JWT_RES_PATTERN)
     @jwt << last_response.body[8..-3]
   end
 
@@ -47,17 +49,18 @@ RSpec.describe AuthenticationController do
     begin
       post '/login', '{"username":"Administrator","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
       expect(last_response).to be_ok
-      expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
-      expect(User.find(1).profile).not_to be_blank
+      expect(last_response.body).to match(JWT_RES_PATTERN)
+      expect(User.find(1)).to have_attributes(profile: be_present)
     ensure
       auth_server.delete 'search_group'
     end
   end
 
   it 'logins with non-exist LDAP user' do
+    expect(User.find_by(username: 'ad1')).to be_falsey
     post '/login', '{"username":"uid=ad1,ou=Users,dc=skeleton,dc=xx","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_ok
-    expect(last_response.body).to match(/^{"jwt":"[^"]+"}$/)
-    expect(User.find_by!(username: 'ad1').profile).not_to be_blank
+    expect(last_response.body).to match(JWT_RES_PATTERN)
+    expect(User.find_by!(username: 'ad1')).to have_attributes(profile: be_present, delete: be_truthy)
   end
 end

@@ -54,6 +54,7 @@ Misc:
 - Provide API to renew JWT
 - Authentication with SSL client certificate
 - Authentication with AD/LDAP server
+- Resumable upload using [tus protocol](https://tus.io/protocols/resumable-upload.html)
 - Active Record DB seeding with environment seed files
 - Support custom Rake tasks with `*.rake` files
 - Unit-testing app controllers, models,... using RSpec

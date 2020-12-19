@@ -19,7 +19,8 @@ module Base64
   # @raise [ArgumentError] If +str+ contains non-alphabet characters.
   def safe_decode64(str)
     str.gsub!(/\s+/, '')
-    strict_decode64((str.length % 4).zero? ? str : str.ljust((str.length + 3) & ~3, '='))
+    str = str.ljust((str.length + 3) & ~3, '=') if (str.length % 4).nonzero?
+    strict_decode64 str
   end
 end
 

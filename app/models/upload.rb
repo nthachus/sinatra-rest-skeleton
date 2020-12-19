@@ -33,6 +33,10 @@ class Upload < ActiveRecord::Base
     super(value.is_a?(String) ? FileUtils.fix_relative_path(value) : value)
   end
 
+  after_find do |o|
+    o.name = o.name
+  end
+
   METADATA_KEYS = %i[name size mime_type last_modified].freeze
 
   # @param [Hash] data
@@ -55,23 +59,25 @@ class Upload < ActiveRecord::Base
     extra.as_json.merge as_json(only: METADATA_KEYS, methods: :name)
   end
 
-  # @return [String]
+  # @return [String, nil]
   def tmp_file_path
-    return nil if !user_id.is_a?(Integer) || key.blank?
+    return nil unless user_id.is_a?(Integer) && key.present?
 
     File.join File.expand_path(format(Skeleton::Application.settings.upload_tmp_path, user_id), Skeleton::Application.settings.root), key
   end
 
   # @return [Integer]
-  def tmp_file_size
-    return nil unless (path = tmp_file_path)
+  def real_file_size
+    path = tmp_file_path
+    return File.size(path) if path && File.file?(path)
 
-    File.file?(path) ? File.size(path) : -1
+    path = out_file_path
+    path && File.file?(path) ? File.size(path) : -1
   end
 
-  # @return [String]
+  # @return [String, nil]
   def out_file_path
-    return nil if !user_id.is_a?(Integer) || name.blank?
+    return nil unless user_id.is_a?(Integer) && name.present?
 
     File.join File.expand_path(format(Skeleton::Application.settings.user_file_path, user_id), Skeleton::Application.settings.root), name
   end

@@ -32,8 +32,7 @@ RSpec.describe UserSession do
   end
 
   it 'validates JSON value field' do
-    o = described_class.find_by! key: 'ssl-xx'
-    expect(o.value).to be_kind_of(Hash)
+    expect(described_class.find_by!(key: 'ssl-xx')).to have_attributes(value: be_kind_of(Hash))
   end
 
   it 'validates key uniqueness' do

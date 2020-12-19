@@ -37,6 +37,11 @@ RSpec.describe Upload do
     expect(subject.errors[:mime_type]).to include('is too long (maximum is 255 characters)')
   end
 
+  it 'validates auto-fix path name' do
+    expect(described_class.where(key: 'abc123').update_all(name: './xx')).to eq(1)
+    expect(described_class.find_by!(key: 'abc123')).to have_attributes(name: 'xx')
+  end
+
   it 'validates key uniqueness' do
     subject.user_id = -1
     subject.key = 'abc123'

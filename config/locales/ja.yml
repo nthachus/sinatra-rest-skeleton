@@ -6,6 +6,7 @@ ja:
     function_not_implemented: 機能は実装されない。
     bad_json_request: 無効のJSON要求。
     missing_parameters: "行方不明のパラメータ：%{values}"
+    unsupported_media_type: サポートされていないメディアタイプ。
 
     expired_token: トークンは期限切れになった。
     invalid_token: トークンは無効である。
@@ -17,5 +18,5 @@ ja:
     invalid_parameters: "無効のパラメータ：%{values}"
 
     file_size_too_large: ファイルサイズは大きすぎる。
-    file_already_exists: ファイルはすでに存在する。
+    file_already_exists: "ファイル「%{value}」はすでに存在する。"
     upload_file_not_found: アップロードファイルは見つけられなかった。

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-# Upload using tus protocol
-# @see https://github.com/tus/tus-resumable-upload-protocol/blob/master/protocol.md
+# Resumable upload using tus protocol
+#
+# @see https://tus.io/protocols/resumable-upload.html
 # @see https://github.com/kukhariev/node-uploadx
 class UploadController < Skeleton::Application
   # Route prefix
@@ -49,8 +50,9 @@ class UploadController < Skeleton::Application
   FILE_ID_ROUTE = %r{/([0-9a-f]+)}.freeze
 
   # Write chunk to file and return chunk offset
-  patch FILE_ID_ROUTE, authorize: [] do |file_id|
+  patch FILE_ID_ROUTE, authorize: [], media_type: TUS_CONTENT_TYPE do |file_id|
     meta = upload_service.find_upload_meta file_id
+    # noinspection RubyArgCount
     not_found json_error(I18n.t('app.upload_file_not_found')) unless meta
 
     offset = suppress(TypeError, ArgumentError) { Integer(env['HTTP_UPLOAD_OFFSET']) }
@@ -73,7 +75,7 @@ class UploadController < Skeleton::Application
   head FILE_ID_ROUTE, authorize: [] do |file_id|
     begin
       meta = upload_service.find_upload_meta! file_id
-      headers 'Upload-Offset' => meta.tmp_file_size.to_s, 'Upload-Metadata' => serialize_metadata(meta.to_metadata)
+      headers 'Upload-Offset' => meta.real_file_size.to_s, 'Upload-Metadata' => serialize_metadata(meta.to_metadata)
 
       nil
     rescue ActiveRecord::RecordNotFound => e
@@ -90,6 +92,7 @@ class UploadController < Skeleton::Application
       upload_service.delete_file file_id
       [204, nil]
     rescue ActiveRecord::RecordNotFound
+      # noinspection RubyArgCount
       not_found json_error(I18n.t('app.upload_file_not_found'))
     end
   end
@@ -100,11 +103,11 @@ class UploadController < Skeleton::Application
   # @return [Upload]
   def create_upload_meta(meta)
     upload_service.create_file meta
-  rescue ActiveRecord::RecordNotUnique
-    error 409, json_error(I18n.t('app.file_already_exists', value: meta[:name]))
+  rescue ActiveRecord::RecordNotUnique => e
+    error 409, json_error(I18n.t('app.file_already_exists', value: e.message))
   rescue ActiveRecord::RecordInvalid => e
     # logger.warn e.to_s
-    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata'), e.record.errors.full_messages)
+    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata'), e.record.errors.to_a)
   end
 
   # @param [Upload] meta
@@ -112,11 +115,11 @@ class UploadController < Skeleton::Application
   # @return [Upload]
   def update_upload_meta(meta, data)
     upload_service.update_file meta, data
-  rescue ActiveRecord::RecordNotUnique
-    error 409, json_error(I18n.t('app.file_already_exists', value: data[:name]))
+  rescue ActiveRecord::RecordNotUnique => e
+    error 409, json_error(I18n.t('app.file_already_exists', value: e.message))
   rescue ActiveRecord::RecordInvalid => e
     # logger.warn e.to_s
-    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata'), e.record.errors.full_messages)
+    bad_request json_error(I18n.t('app.invalid_parameters', values: 'Metadata'), e.record.errors.to_a)
   end
 
   # @param [Hash] meta

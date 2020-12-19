@@ -1,19 +1,7 @@
 # frozen_string_literal: true
 
 module Skeleton
-  class Application < Sinatra::Base
-    # @return [UserService]
-    def user_service
-      @user_service ||= UserService.new self
-    end
-  end
-
-  class UserService
-    def initialize(app)
-      # @type [Skeleton::Application]
-      @app = app
-    end
-
+  class UserService < BaseService
     # @param [String] username
     # @param [String] email
     # @return [User]
@@ -34,5 +22,11 @@ module Skeleton
         user_role.eq(User.roles[Constants::Roles::USER]).or(user_role.gteq(User.roles[@app.current_user.role]))
       )
     end
+  end
+
+  class Application < Sinatra::Base
+    # @!method user_service
+    #   @return [UserService]
+    register_service UserService
   end
 end

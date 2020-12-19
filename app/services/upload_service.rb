@@ -1,24 +1,12 @@
 # frozen_string_literal: true
 
 module Skeleton
-  class Application < Sinatra::Base
-    # @return [UploadService]
-    def upload_service
-      @upload_service ||= UploadService.new self
-    end
-  end
-
-  class UploadService
-    def initialize(app)
-      # @type [Skeleton::Application]
-      @app = app
-    end
-
+  class UploadService < BaseService
     # @param [Hash] data
     # @return [Upload]
     # @raise [ActiveRecord::RecordNotUnique]
     def create_file(data)
-      @app.logger.debug "Create upload file: #{data}"
+      @logger.debug "Create upload file: #{data}"
 
       Upload.transaction do
         meta = Upload.create_from_metadata data, user: @app.current_user, key: SecureRandom.hex
@@ -35,7 +23,7 @@ module Skeleton
     # @return [Upload]
     # @raise [ActiveRecord::RecordNotUnique]
     def update_file(meta, data)
-      @app.logger.debug "Update upload file: #{meta.key} - #{data}"
+      @logger.debug "Update upload file: #{meta.key} - #{data}"
 
       Upload.transaction do
         meta.update_from_metadata data
@@ -53,7 +41,7 @@ module Skeleton
     # @param [Integer] offset
     # @return [Integer]
     def write_file(meta, io, length, offset = 0)
-      @app.logger.info "Write upload file: #{meta.key} - at: #{offset}"
+      @logger.info "Write upload file: #{meta.key} - at: #{offset}"
 
       if meta.size > offset
         offset += File.open(meta.tmp_file_path, 'r+b') do |f|
@@ -63,7 +51,8 @@ module Skeleton
         end
       end
 
-      on_written meta, offset
+      on_complete meta if offset >= meta.size
+      offset
     end
 
     # @param [String] file_id
@@ -93,11 +82,18 @@ module Skeleton
     private
 
     # @param [Upload] meta
-    # @param [Integer] written
-    # @return [Integer]
-    def on_written(meta, written)
-      meta.send(:on_complete) if written >= meta.size && meta.respond_to?(:on_complete, true)
-      written
+    def on_complete(meta)
+      @logger.info "Upload completed: #{meta.key} - #{meta.name.inspect}"
+
+      # TODO: UserFile.create_from_upload meta
+      File.rename meta.tmp_file_path, FileUtils.ensure_dir_exists(path = meta.out_file_path)
+      File.utime(Time.now, Time.fix_timestamp(meta.last_modified), path) if meta.last_modified
     end
+  end
+
+  class Application < Sinatra::Base
+    # @!method upload_service
+    #   @return [UploadService]
+    register_service UploadService
   end
 end

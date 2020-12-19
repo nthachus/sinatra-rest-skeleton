@@ -15,8 +15,6 @@ class CreateUploads < ActiveRecord::Migration[5.2]
       t.jsonb :extra, null: false, default: {}
 
       t.timestamps
-      t.bigint :created_by, :updated_by
-
       # t.index %i[user_id name], unique: true
     end
   end

@@ -1,23 +1,11 @@
 # frozen_string_literal: true
 
 module Skeleton
-  class Application < Sinatra::Base
-    # @return [LdapAuthService]
-    def ldap_auth_service
-      @ldap_auth_service ||= LdapAuthService.new self
-    end
-  end
-
-  class LdapAuthService
-    def initialize(app)
-      # @type [Skeleton::Application]
-      @app = app
-    end
-
+  class LdapAuthService < BaseService
     # @return [Array<Hash>]
     # @raise [ActiveRecord::ConfigurationError]
     def list_auth_servers
-      list = @app.settings.ldap_servers.reject { |v| v[:disabled] || v['disabled'] }
+      list = @settings.ldap_servers.reject { |v| v[:disabled] || v['disabled'] }
       # LDAP settings found?
       raise ActiveRecord::ConfigurationError, 'Invalid AD/LDAP settings' if list.blank?
 
@@ -34,7 +22,7 @@ module Skeleton
         ldap_user, uid, groups, config = do_authenticate username, password, auth_server
         next unless ldap_user
 
-        @app.logger.debug "LDAP authenticated user: #{ldap_user.inspect}"
+        @logger.debug "LDAP authenticated user: #{ldap_user.inspect}"
 
         # Is AD/LDAP Administrator?
         is_admin = groups&.any? { |s| s =~ /\bAdmin(istrator)?s?\b/i }
@@ -62,12 +50,12 @@ module Skeleton
       uid = fluff.get_user_login user
       groups = uid ? fluff.service_bind { fluff.find_user_groups(user, uid) } : nil
       # DEBUG
-      @app.logger.info "LDAP authenticated for: #{uid.inspect} - #{groups.inspect}"
+      @logger.info "LDAP authenticated for: #{uid.inspect} - #{groups.inspect}"
 
       [user, uid, groups, fluff.config]
     rescue AdLdapService::UserNotFoundError => e
       # If user not found?
-      @app.logger.warn StackTraceArray.new(e, 0)
+      @logger.warn StackTraceArray.new(e, 0)
       nil
     end
 
@@ -143,5 +131,11 @@ module Skeleton
 
       [name, info]
     end
+  end
+
+  class Application < Sinatra::Base
+    # @!method ldap_auth_service
+    #   @return [LdapAuthService]
+    register_service LdapAuthService
   end
 end

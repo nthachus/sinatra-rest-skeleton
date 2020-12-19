@@ -25,8 +25,6 @@ ActiveRecord::Schema.define(version: 2020_12_17_022834) do
     t.jsonb "extra", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "created_by"
-    t.bigint "updated_by"
     t.index ["key"], name: "index_uploads_on_key", unique: true
     t.index ["user_id"], name: "index_uploads_on_user_id"
   end

@@ -3,27 +3,7 @@
 require 'jwt'
 
 module Skeleton
-  class Application < Sinatra::Base
-    # @return [AuthService]
-    def auth_service
-      @auth_service ||= AuthService.new self
-    end
-
-    private
-
-    # @param [String] jwt
-    # @return [User]
-    def do_authorize(jwt)
-      auth_service.authorize jwt
-    end
-  end
-
-  class AuthService
-    def initialize(app)
-      # @type [Skeleton::Application]
-      @app = app
-    end
-
+  class AuthService < BaseService
     # @param [String] username
     # @param [String] password
     # @return [String] JWT
@@ -54,15 +34,15 @@ module Skeleton
     def create_jwt(user_id, session_key, data = {})
       ts = Time.now.to_i
       payload = data.merge(
-        iss: @app.settings.jwt_issuer,
+        iss: @settings.jwt_issuer,
         iat: ts,
-        exp: ts + @app.settings.jwt_lifetime,
+        exp: ts + @settings.jwt_lifetime,
         sub: user_id,
         jti: session_key
       )
 
-      @app.logger.debug "Create JWT for: #{payload}"
-      JWT.encode payload, @app.settings.jwt_secret
+      @logger.debug "Create JWT for: #{payload}"
+      JWT.encode payload, @settings.jwt_secret
     end
 
     # @param [String] jwt
@@ -85,12 +65,26 @@ module Skeleton
     # @param [String] jwt
     # @return [Hash]
     def decode_jwt(jwt)
-      decoded = JWT.decode jwt, @app.settings.jwt_secret, true, verify_iss: true, iss: @app.settings.jwt_issuer, verify_iat: true
+      decoded = JWT.decode jwt, @settings.jwt_secret, true, verify_iss: true, iss: @settings.jwt_issuer, verify_iat: true
 
       payload = decoded.first.with_indifferent_access
-      @app.logger.debug "Authorize JWT payload: #{payload}"
+      @logger.debug "Authorize JWT payload: #{payload}"
 
       payload
+    end
+  end
+
+  class Application < Sinatra::Base
+    # @!method auth_service
+    #   @return [AuthService]
+    register_service AuthService
+
+    private
+
+    # @param [String] jwt
+    # @return [User]
+    def do_authorize(jwt)
+      auth_service.authorize jwt
     end
   end
 end

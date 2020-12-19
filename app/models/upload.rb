@@ -10,8 +10,6 @@
 # @attr [Hash] extra
 # @attr [DateTime] created_at
 # @attr [DateTime] updated_at
-# @attr [Integer] created_by
-# @attr [Integer] updated_by
 # noinspection RailsParamDefResolve
 class Upload < ActiveRecord::Base
   # Validations
@@ -23,7 +21,7 @@ class Upload < ActiveRecord::Base
 
   validates_numericality_of :size, only_integer: true
   validates_length_of :mime_type, maximum: 255
-  validates_numericality_of :last_modified, :created_by, :updated_by, only_integer: true, allow_nil: true
+  validates_numericality_of :last_modified, only_integer: true, allow_nil: true
 
   # Associations
   belongs_to :user, inverse_of: :uploads
@@ -63,7 +61,9 @@ class Upload < ActiveRecord::Base
   def tmp_file_path
     return nil unless user_id.is_a?(Integer) && key.present?
 
-    File.join File.expand_path(format(Skeleton::Application.settings.upload_tmp_path, user_id), Skeleton::Application.settings.root), key
+    # @type [OpenStruct]
+    settings = Skeleton::Application
+    File.join File.expand_path(format(settings.upload_tmp_path, user_id), settings.root), key
   end
 
   # @return [Integer]
@@ -79,15 +79,8 @@ class Upload < ActiveRecord::Base
   def out_file_path
     return nil unless user_id.is_a?(Integer) && name.present?
 
-    File.join File.expand_path(format(Skeleton::Application.settings.user_file_path, user_id), Skeleton::Application.settings.root), name
-  end
-
-  private
-
-  def on_complete
-    Upload.logger&.info "Upload completed: #{key} - #{name.inspect}"
-
-    File.rename tmp_file_path, FileUtils.ensure_dir_exists(path = out_file_path)
-    File.utime(Time.now, Time.fix_timestamp(last_modified), path) if last_modified
+    # @type [OpenStruct]
+    settings = Skeleton::Application
+    File.join File.expand_path(format(settings.user_file_path, user_id), settings.root), name
   end
 end

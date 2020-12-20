@@ -8,8 +8,8 @@
 # @attr [String] mime_type
 # @attr [Integer] last_modified
 # @attr [Hash] extra
-# @attr [DateTime] created_at
-# @attr [DateTime] updated_at
+# @attr [Time] created_at
+# @attr [Time] updated_at
 # noinspection RailsParamDefResolve
 class Upload < ActiveRecord::Base
   # Validations
@@ -17,9 +17,8 @@ class Upload < ActiveRecord::Base
   validates :key, presence: true, length: { maximum: 50, allow_blank: true } # uniqueness: { allow_blank: true }
 
   validates :name, not_empty: true, length: { maximum: 255 }
-  # validates_uniqueness_of :name, scope: :user_id, if: proc { |o| o.name && o.user_id.is_a?(Integer) && o.name.length.between?(1, 255) }
-
   validates_numericality_of :size, only_integer: true
+
   validates_length_of :mime_type, maximum: 255
   validates_numericality_of :last_modified, only_integer: true, allow_nil: true
 
@@ -42,19 +41,19 @@ class Upload < ActiveRecord::Base
   # @return [self]
   def self.create_from_metadata(data, overrides = {})
     meta = data.dup
-    create! meta.extract!(*METADATA_KEYS).merge(extra: meta).merge(overrides)
+    create! meta.extract!(*METADATA_KEYS).merge!(extra: meta).merge!(overrides)
   end
 
   # @param [Hash] data
   def update_from_metadata(data)
     meta = data.dup
-    assign_attributes meta.extract!(*METADATA_KEYS).merge(extra: extra.merge(meta))
+    assign_attributes meta.extract!(*METADATA_KEYS).merge!(extra: extra.merge!(meta))
     save!
   end
 
   # @return [Hash]
   def to_metadata
-    extra.as_json.merge as_json(only: METADATA_KEYS, methods: :name)
+    extra.as_json.merge! as_json(only: METADATA_KEYS, methods: :name)
   end
 
   # @return [String, nil]

@@ -12,7 +12,6 @@ module Skeleton
         meta = Upload.create_from_metadata data, user: @app.current_user, key: SecureRandom.hex
         raise ActiveRecord::RecordNotUnique, meta.name if File.exist? meta.out_file_path
 
-        # noinspection RubyArgCount
         FileUtils.touch FileUtils.ensure_dir_exists(meta.tmp_file_path) if meta.size >= 0
         meta
       end
@@ -29,7 +28,6 @@ module Skeleton
         meta.update_from_metadata data
         raise ActiveRecord::RecordNotUnique, meta.name if File.exist? meta.out_file_path
 
-        # noinspection RubyArgCount
         FileUtils.touch FileUtils.ensure_dir_exists(meta.tmp_file_path) if meta.size >= 0
         meta
       end
@@ -85,15 +83,12 @@ module Skeleton
     def on_complete(meta)
       @logger.info "Upload completed: #{meta.key} - #{meta.name.inspect}"
 
-      # TODO: UserFile.create_from_upload meta
-      File.rename meta.tmp_file_path, FileUtils.ensure_dir_exists(path = meta.out_file_path)
-      File.utime(Time.now, Time.fix_timestamp(meta.last_modified), path) if meta.last_modified
+      UserFile.create_from_upload meta do
+        File.rename meta.tmp_file_path, FileUtils.ensure_dir_exists(path = meta.out_file_path)
+        File.utime(Time.now, Time.fix_timestamp(meta.last_modified), path) if meta.last_modified
+      end
     end
   end
 
-  class Application < Sinatra::Base
-    # @!method upload_service
-    #   @return [UploadService]
-    register_service UploadService
-  end
+  Application.register_service UploadService
 end

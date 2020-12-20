@@ -4,6 +4,9 @@ class UserController < Skeleton::Application
   # Route prefix
   map '/user'
 
+  # @!method user_service
+  #   @return [Skeleton::UserService]
+
   get '/', authorize: [] do
     json current_user.as_json(except: :password_digest, methods: :session)
   end

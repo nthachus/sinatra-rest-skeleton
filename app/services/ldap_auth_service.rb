@@ -133,9 +133,5 @@ module Skeleton
     end
   end
 
-  class Application < Sinatra::Base
-    # @!method ldap_auth_service
-    #   @return [LdapAuthService]
-    register_service LdapAuthService
-  end
+  Application.register_service LdapAuthService
 end

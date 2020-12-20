@@ -4,6 +4,9 @@ class AuthenticationController < Skeleton::Application
   # Route prefix
   map '/auth'
 
+  # @!method ldap_auth_service
+  #   @return [Skeleton::LdapAuthService]
+
   post '/login', needs: %i[username password] do
     begin
       jwt = auth_service.login params[:username], params[:password]

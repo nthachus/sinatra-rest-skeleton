@@ -34,8 +34,8 @@ module Skeleton
         # Make sure it's logged-in
         unauthorized json_error(I18n.t('app.missing_token')) unless current_user
 
-        access_denied json_error(I18n.t('app.access_denied')) if
-          roles.present? && current_user.respond_to?(:role) && !(current_user.role && roles.include?(current_user.role.to_sym))
+        access_denied json_error(I18n.t('app.access_denied')) \
+          if roles.present? && current_user.respond_to?(:role) && !roles.include?(current_user.role&.to_sym)
 
         current_user.send(:on_authorized) if current_user.respond_to?(:on_authorized, true)
       end

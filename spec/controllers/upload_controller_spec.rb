@@ -186,14 +186,14 @@ RSpec.describe UploadController do
 
   it 'uploads the last chunk' do
     skip 'needs to upload first' if @file_id.blank?
-    expect(target = Pathname.new(TARGET_FILE)).not_to be_exist
+    expect(p = Pathname.new(TARGET_FILE)).not_to be_exist
 
     header 'Upload-Metadata', ' size MTE , isExtra MA'
     header 'Upload-Offset', '9'
     patch "/#{@file_id.first}", 'ld', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_no_content
     expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '11')
-    expect(target).to be_file & have_attributes(size: 11, read: 'hello world', mtime: Time.at(1_558_309_643, 12_000.0))
+    expect(p).to be_file & have_attributes(size: 11, read: 'hello world', mtime: Time.at(1_558_309_643, 12_000.0))
   end
 
   it 'uploads with existing filename' do
@@ -226,7 +226,8 @@ RSpec.describe UploadController do
     delete "/#{@file_id.first}"
     expect(last_response).to be_no_content
     expect(last_response.headers).to have_key('Tus-Resumable')
-    expect(Pathname.new(TARGET_FILE)).to be_file & have_attributes(delete: be_truthy)
+    expect(p = Pathname.new(TARGET_FILE)).to be_file & have_attributes(delete: be_truthy)
+    expect(UserFile.find_by(name: p.basename.to_s, user_id: p.dirname.basename.to_s)).to be_truthy & have_attributes(delete: be_truthy)
   end
 
   it 'resumes upload without content-type' do

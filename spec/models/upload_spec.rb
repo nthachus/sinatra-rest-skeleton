@@ -38,8 +38,8 @@ RSpec.describe Upload do
   end
 
   it 'validates auto-fix path name' do
-    expect(described_class.where(key: 'abc123').update_all(name: './xx')).to eq(1)
-    expect(described_class.find_by!(key: 'abc123')).to have_attributes(name: 'xx')
+    expect(described_class.where(key: 'abc123').update_all(name: './xx')).to be_truthy
+    expect(described_class.find_by(key: 'abc123')).to be_truthy & have_attributes(name: 'xx')
   end
 
   it 'validates key uniqueness' do

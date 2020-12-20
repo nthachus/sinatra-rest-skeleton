@@ -13,3 +13,4 @@ UserSession.create! user: power_user, key: 'power-xx'
 
 # Uploads
 Upload.create! user: user, key: 'abc123', name: 'xx', size: -1
+UserFile.create! user: user, name: 'abc.xx', size: -1

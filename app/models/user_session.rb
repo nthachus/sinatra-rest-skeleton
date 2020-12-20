@@ -4,8 +4,8 @@
 # @attr [Integer] user_id
 # @attr [String] key
 # @attr [Hash] value
-# @attr [DateTime] created_at
-# @attr [DateTime] updated_at
+# @attr [Time] created_at
+# @attr [Time] updated_at
 # noinspection RailsParamDefResolve
 class UserSession < ActiveRecord::Base
   # Validations

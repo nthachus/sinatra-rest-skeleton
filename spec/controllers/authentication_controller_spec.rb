@@ -61,6 +61,6 @@ RSpec.describe AuthenticationController do
     post '/login', '{"username":"uid=ad1,ou=Users,dc=skeleton,dc=xx","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_ok
     expect(last_response.body).to match(JWT_RES_PATTERN)
-    expect(User.find_by!(username: 'ad1')).to have_attributes(profile: be_present, delete: be_truthy)
+    expect(User.find_by(username: 'ad1')).to be_truthy & have_attributes(profile: be_present, delete: be_truthy)
   end
 end

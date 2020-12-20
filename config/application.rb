@@ -41,6 +41,7 @@ module Skeleton
     register Sinatra::ActiveRecordExtension
 
     # Response JSON with the default charset
+    # noinspection RubyResolve
     settings.add_charset << %r{/json$}
   end
 end

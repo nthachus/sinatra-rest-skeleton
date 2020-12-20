@@ -17,16 +17,13 @@ module Skeleton
     # @return [Array<User>]
     def find_all
       user_role = User.arel_table[:role]
+      user_roles = User.roles
 
       User.unscoped.includes(:sessions).where(
-        user_role.eq(User.roles[Constants::Roles::USER]).or(user_role.gteq(User.roles[@app.current_user.role]))
+        user_role.eq(user_roles[Constants::Roles::USER]).or(user_role.gteq(user_roles[@app.current_user.role]))
       )
     end
   end
 
-  class Application < Sinatra::Base
-    # @!method user_service
-    #   @return [UserService]
-    register_service UserService
-  end
+  Application.register_service UserService
 end

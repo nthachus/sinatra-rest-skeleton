@@ -7,9 +7,9 @@
 # @attr [String] name
 # @attr [String] email
 # @attr [Hash] profile
-# @attr [DateTime] created_at
-# @attr [DateTime] updated_at
-# @attr [DateTime] deleted_at
+# @attr [Time] created_at
+# @attr [Time] updated_at
+# @attr [Time] deleted_at
 # @attr [Integer] created_by
 # @attr [Integer] updated_by
 # @attr [Integer] deleted_by
@@ -43,6 +43,7 @@ class User < ActiveRecord::Base
   # Associations
   has_many :sessions, class_name: :UserSession, inverse_of: :user
   has_many :uploads, inverse_of: :user
+  has_many :files, class_name: :UserFile, inverse_of: :user
 
   # @return [UserSession]
   attr_accessor :session

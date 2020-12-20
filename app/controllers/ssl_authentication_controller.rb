@@ -4,6 +4,9 @@ class SslAuthenticationController < Skeleton::Application
   # Route prefix
   map '/auth_ssl'
 
+  # @!method user_service
+  #   @return [Skeleton::UserService]
+
   post '/' do
     ssl_client = env[settings.ssl_client_env_key]
     bad_request json_error(I18n.t('app.missing_parameters', values: 'SSL Client')) if ssl_client.blank?

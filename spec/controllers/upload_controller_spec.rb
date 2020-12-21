@@ -227,8 +227,8 @@ RSpec.describe UploadController do
     delete "/#{@file_id.first}"
     expect(last_response).to be_no_content
     expect(last_response.headers).to have_key('Tus-Resumable')
-    expect(p = Pathname.new(TARGET_FILE)).to be_file & have_attributes(delete: be_truthy)
-    expect(UserFile.find_by(name: p.basename.to_s, user_id: p.dirname.basename.to_s)).to be_truthy & have_attributes(delete: be_truthy)
+    expect(p = Pathname.new(TARGET_FILE)).to be_file # have_attributes(delete: be_truthy)
+    expect(UserFile.find_by(name: p.basename.to_s, user_id: p.dirname.basename.to_s)).to be_truthy # have_attributes(delete: be_truthy)
   end
 
   it 'resumes upload without content-type' do

@@ -45,7 +45,7 @@ RSpec.describe UserFile do
     expect(subject).not_to be_valid
     expect(subject.errors[:name]).to include('has already been taken')
 
-    expect(subject.errors).to be_details_for(:name, :taken)
+    expect(subject.errors.details_for?(:name, :taken)).to be_truthy
     expect(subject.errors[:checksum]).not_to include('is invalid')
   end
 

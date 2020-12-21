@@ -5,7 +5,7 @@ RSpec.describe 'Localization' do
     set_app Skeleton::Application
   end
 
-  before :each do
+  before do
     header 'Accept-Language', 'ja'
   end
 

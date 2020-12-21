@@ -8,7 +8,7 @@ RSpec.describe UploadController do
     @file_id = []
   end
 
-  before :each do
+  before do
     header 'Authorization', "Bearer #{Fixtures::SSL_USER_JWT}"
   end
 
@@ -82,7 +82,8 @@ RSpec.describe UploadController do
     post '/', 'hello', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_ok
     expect(last_response.body).to be_blank
-    expect(last_response.headers).to include('Upload-Offset' => '5') & include('Location' => match(%r{/[0-9a-f]+$}))
+    expect(last_response.headers).to \
+      include('Upload-Offset' => '5') & include('Location' => match(%r{/[0-9a-f]+$})) & include('Upload-Expires' => be_truthy)
     @file_id << last_response.headers['Location'].sub(%r{^.*/}, '')
   end
 
@@ -171,7 +172,7 @@ RSpec.describe UploadController do
     header 'Upload-Offset', '7'
     patch "/#{@file_id.first}", 'or', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_no_content
-    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '9')
+    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '9') & include('Upload-Expires' => be_truthy)
   end
 
   it 'uploads the second chunk' do
@@ -179,7 +180,7 @@ RSpec.describe UploadController do
     header 'Upload-Offset', '5'
     patch "/#{@file_id.first}", ' w', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_no_content
-    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '7')
+    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '7') & include('Upload-Expires' => be_truthy)
   end
 
   TARGET_FILE = File.expand_path('../../storage/files/2/a中Я', __dir__).freeze

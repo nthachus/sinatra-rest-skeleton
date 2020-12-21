@@ -2,12 +2,22 @@
 
 module Rake
   class Application
-    # @return [Array<String>]
-    attr_reader :top_level_tasks
+    # @!attribute [r] top_level_tasks
+    #   @return [Array<String>]
+
+    # @!method rake_require(file_name, paths = [], loaded = [])
+    #   @return [true, false]
   end
 
   # @return [Rake::Application]
   def self.application; end
+
+  def self.application=(*); end
+end
+
+module RSpec
+  # @return [String]
+  def task_name; end
 end
 
 module ActiveRecord

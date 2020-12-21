@@ -28,6 +28,7 @@ module Skeleton
         meta.update_from_metadata data
         raise ActiveRecord::RecordNotUnique, meta.name if File.exist? meta.out_file_path
 
+        meta.touch unless meta.saved_changes?
         FileUtils.touch FileUtils.ensure_dir_exists(meta.tmp_file_path) if meta.size >= 0
         meta
       end

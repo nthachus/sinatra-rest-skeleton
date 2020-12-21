@@ -9,7 +9,7 @@ class UploadController < Skeleton::Application
   map '/upload'
 
   TUS_VERSIONS = '1.0.0'
-  TUS_EXTENSIONS = 'creation,creation-with-upload,termination'
+  TUS_EXTENSIONS = 'creation,creation-with-upload,expiration,termination'
   TUS_CONTENT_TYPE = 'application/offset+octet-stream'
 
   # @!method upload_service
@@ -47,7 +47,7 @@ class UploadController < Skeleton::Application
       return_code = 200 if written.nonzero? && written < meta.size
     end
 
-    [return_code, nil]
+    [return_code, { 'Upload-Expires' => meta.expiration_date&.httpdate }, nil]
   end
 
   FILE_ID_ROUTE = %r{/([0-9a-f]+)}.freeze
@@ -71,7 +71,7 @@ class UploadController < Skeleton::Application
     meta = update_upload_meta meta, data
     written = upload_service.write_file meta, request.body, Integer(request.content_length), offset
 
-    [204, { 'Upload-Offset' => written.to_s }, nil]
+    [204, { 'Upload-Offset' => written.to_s, 'Upload-Expires' => meta.expiration_date&.httpdate }, nil]
   end
 
   head FILE_ID_ROUTE, authorize: [] do |file_id|

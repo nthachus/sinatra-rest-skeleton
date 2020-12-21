@@ -34,6 +34,11 @@ class Upload < ActiveRecord::Base
     o.name = o.name
   end
 
+  # @return [Time, nil]
+  def expiration_date
+    updated_at ? updated_at + Skeleton::Application.settings.jwt_lifetime : nil
+  end
+
   METADATA_KEYS = %i[name size mime_type last_modified].freeze
 
   # @param [Hash] data

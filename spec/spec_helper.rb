@@ -5,6 +5,7 @@ SimpleCov.start do
   add_filter '/vendor/'
   add_group 'Models', '/app/models/'
   add_group 'Controllers', '/app/controllers/'
+  add_group 'Tasks', '/lib/tasks/'
   add_group 'Specs', '/spec/'
 end
 
@@ -15,27 +16,19 @@ require_relative '../config/environment'
 require 'rspec'
 require 'sinatra/test_helpers'
 
-# Configure logging output to a file
-module Sinatra
-  module TestHelpers
-    mattr_reader :log_file, instance_accessor: false do
-      io = File.new File.expand_path('../log/rspec.stderr.log', __dir__), 'a'
-      io.sync = true
-      ActiveRecord::Base.logger ||= ::Logger.new(io)
-      io
-    end
-
-    class Session < Rack::Test::Session
-      def global_env
-        @global_env ||= { Rack::RACK_ERRORS => TestHelpers.log_file }
-      end
-    end
-  end
-end
+# Requires supporting ruby files
+Dir[File.expand_path('support/**/*.rb', __dir__)].sort.each(&method(:require))
 
 RSpec.configure do |config|
+  config.backtrace_exclusion_patterns << %r{vendor[\\/]}
+
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
+
+  # Automatically add metadata :type to specs based on their file location
+  %i[controller helper model integration feature task].each do |type|
+    config.define_derived_metadata(file_path: %r{spec[\\/]#{type}s?[\\/]}) { |metadata| metadata[:type] ||= type }
+  end
 
   # Testing Sinatra with mixins
   config.include Sinatra::TestHelpers

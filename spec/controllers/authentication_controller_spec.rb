@@ -35,14 +35,6 @@ RSpec.describe AuthenticationController do
     @jwt << last_response.body[8..-3]
   end
 
-  it 'renews user token successfully' do
-    skip 'needs to login first' if @jwt.blank?
-    header 'Authorization', "Bearer #{@jwt.last}"
-    get '/token'
-    expect(last_response).to be_ok
-    expect(last_response.body).to include(@jwt.last)
-  end
-
   it 'logins with existing LDAP user' do
     auth_server = @app.send(:ldap_servers).first
     auth_server['search_group'] = false
@@ -62,5 +54,13 @@ RSpec.describe AuthenticationController do
     expect(last_response).to be_ok
     expect(last_response.body).to match(JWT_RES_PATTERN)
     expect(User.find_by(username: 'ad1')).to be_truthy & have_attributes(profile: be_present, delete: be_truthy)
+  end
+
+  it 'renews user token successfully' do
+    skip 'needs to login first' if @jwt.blank?
+    header 'Authorization', "Bearer #{@jwt.first}"
+    get '/token'
+    expect(last_response).to be_ok
+    expect(last_response.body).to match(JWT_RES_PATTERN) & exclude(@jwt.first)
   end
 end

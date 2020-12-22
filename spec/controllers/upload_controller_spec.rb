@@ -194,7 +194,7 @@ RSpec.describe UploadController do
     patch "/#{@file_id.first}", 'ld', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_no_content
     expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '11')
-    expect(p).to be_file & have_attributes(size: 11, read: 'hello world', mtime: Time.at(1_558_309_643, 12_000.0))
+    expect(p).to be_file & have_attributes(size: 11, read: 'hello world', mtime: have_attributes(to_i: 1_558_309_643))
   end
 
   it 'uploads with existing filename' do
@@ -227,8 +227,8 @@ RSpec.describe UploadController do
     delete "/#{@file_id.first}"
     expect(last_response).to be_no_content
     expect(last_response.headers).to have_key('Tus-Resumable')
-    expect(p = Pathname.new(TARGET_FILE)).to be_file # have_attributes(delete: be_truthy)
-    expect(UserFile.find_by(name: p.basename.to_s, user_id: p.dirname.basename.to_s)).to be_truthy # have_attributes(delete: be_truthy)
+    expect(p = Pathname.new(TARGET_FILE)).to be_file & have_attributes(delete: be_truthy)
+    expect(UserFile.find_by(name: p.basename.to_s, user_id: p.dirname.basename.to_s)).to be_truthy & have_attributes(delete: be_truthy)
   end
 
   it 'resumes upload without content-type' do

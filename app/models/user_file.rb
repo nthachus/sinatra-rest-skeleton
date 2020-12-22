@@ -31,7 +31,7 @@ class UserFile < ActiveRecord::Base
   validates_length_of :encoding, maximum: 50
 
   validates_numericality_of :last_modified, :created_by, :updated_by, :deleted_by, only_integer: true, allow_nil: true
-  validates :checksum, length: { maximum: 100 }, format: { with: /\A[0-9a-f]+\z/, allow_nil: true }
+  validates :checksum, length: { maximum: 100 }, format: { with: /\A[0-9a-f]*\z/, allow_nil: true }
 
   # Associations
   belongs_to :user, inverse_of: :files

@@ -10,17 +10,14 @@ namespace :app do
     cnt = []
     Integer(args[:times] || 3).times do
       file = UserFile.where(UserFile.arel_table[:size].gt(0)).find_by checksum: nil
-      break unless file
-
-      file.update! checksum: '' # lock
+      break unless file&.update_columns(checksum: '') # lock
 
       path = file.real_file_path
       next unless path && File.file?(path)
 
+      # noinspection RubyResolve
       hash = Digest::SHA256.file path
-      file.update! checksum: hash.hexdigest
-
-      cnt << file.id
+      cnt << file.id if file.update_columns checksum: hash.hexdigest
     end
 
     # DEBUG

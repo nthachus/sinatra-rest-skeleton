@@ -42,6 +42,7 @@ RSpec.describe UserFile do
   it 'validates uniqueness' do
     subject.user_id = 2
     subject.name = 'abc.xx'
+    subject.checksum = ''
     expect(subject).not_to be_valid
     expect(subject.errors[:name]).to include('has already been taken')
 

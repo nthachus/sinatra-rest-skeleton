@@ -28,13 +28,13 @@ services:
 
   api-dev:
     build: .
-    image: "ami/ruby:2.4"
+    image: "ami/ruby:2.3"
     container_name: skeleton-dev
     volumes:
       - ".:/usr/src/app"
     working_dir: /usr/src/app
     environment:
-      - GEM_HOME=/usr/src/app/vendor/bundle/ruby/2.4.0
+      - GEM_HOME=/usr/src/app/vendor/bundle/ruby/2.3.0
     ports:
       - 3000:3000
     depends_on:
@@ -56,13 +56,13 @@ services:
     build:
       context: .
       target: ruby_runtime
-    image: "ami/ruby:2.4-thin"
+    image: "ami/ruby:2.3-slim"
     container_name: skeleton-prod
     volumes:
       - ".:/usr/src/app"
     working_dir: /usr/src/app
     environment:
-      - GEM_HOME=/usr/src/app/vendor/bundle/ruby/2.4.0
+      - GEM_HOME=/usr/src/app/vendor/bundle/ruby/2.3.0
     ports:
       - 3000:3000
     depends_on:

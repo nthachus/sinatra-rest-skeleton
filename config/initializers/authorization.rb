@@ -25,6 +25,7 @@ module Skeleton
 
     # A way to require authorization
     #
+    # @example
     #   get '/', authorize: [:admin] do
     #     ...
     #   end

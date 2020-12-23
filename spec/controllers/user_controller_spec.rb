@@ -17,7 +17,7 @@ RSpec.describe UserController do
 
   it 'only admin can list users' do
     setup_auth_header Fixtures::SSL_USER_JWT
-    get '/list'
+    get '/search'
     expect(last_response).to be_forbidden
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
     expect(last_response.body).to eq('{"error":"Access is denied."}')
@@ -25,7 +25,7 @@ RSpec.describe UserController do
 
   it 'list users by administrator' do
     setup_auth_header Fixtures::ADMIN_JWT
-    get '/list'
+    get '/search'
     expect(last_response).to be_ok
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
     expect(last_response.body).to match(/^\[{.*"role":"user",.*"sessions":\[{/) & match(/"role":"power"/) & match(/"role":"admin"/)
@@ -33,7 +33,7 @@ RSpec.describe UserController do
 
   it 'list users by power user' do
     setup_auth_header Fixtures::POWER_USER_JWT
-    get '/list'
+    get '/search'
     expect(last_response).to be_ok
     expect(last_response.body).to match(/^\[{.*"role":"user",.*"sessions":\[{/) & match(/"role":"power"/)
     expect(last_response.body).not_to match(/"role":"admin"/)

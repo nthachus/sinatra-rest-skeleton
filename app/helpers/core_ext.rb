@@ -24,21 +24,7 @@ module Base64
   end
 end
 
-module YAML
-  # Dump Ruby object +obj+ to a YAML file +filename+.
-  #
-  # @param [Object] obj
-  # @param [String] filename
-  # @param [Hash] options
-  # @option options [Integer] :indentation
-  def self.dump_to_file(obj, filename, options = {})
-    File.open(filename, 'w:utf-8') { |f| dump obj, f, options }
-  end
-end
-
 module FileUtils
-  module_function
-
   # Checks whether the directory exists and creates it if necessary.
   #
   # @param [String] path
@@ -57,6 +43,8 @@ module FileUtils
   def fix_relative_path(path)
     File.expand_path(path, '/')[File.expand_path('/').length..-1]
   end
+
+  module_function :ensure_dir_exists, :fix_relative_path
 end
 
 class Time

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-class SslAuthenticationController < Skeleton::Application
+class AuthenticationController < Skeleton::Application
   # Route prefix
-  map '/auth_ssl'
+  map '/auth'
 
   # @!method user_service
   #   @return [Skeleton::UserService]
 
-  post '/' do
+  post '/login_ssl' do
     ssl_client = env[settings.ssl_client_env_key]
     bad_request json_error(I18n.t('app.missing_parameters', values: 'SSL Client')) if ssl_client.blank?
 

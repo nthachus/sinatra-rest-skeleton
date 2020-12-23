@@ -74,6 +74,7 @@ module Skeleton
 
     # @param [String] file_id
     # @return [Upload]
+    # @raise [ActiveRecord::RecordNotFound]
     def find_upload_meta!(file_id)
       @app.current_user.uploads.find_by! key: file_id
     end

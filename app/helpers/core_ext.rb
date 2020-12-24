@@ -69,3 +69,21 @@ module ActiveModel
     end
   end
 end
+
+module Process
+  # Returns the trimmed standard output of a command.
+  #
+  # @param [Array<String>] cmd
+  # @option [String] :chdir
+  # @return [String]
+  # @raise [RuntimeError] If the process has a non-zero exit code.
+  def self.run_command(*cmd)
+    require 'open3'
+
+    out, err, status = Open3.capture3(*cmd)
+    out.strip!
+    raise(err.blank? ? out : err.strip) unless status.success?
+
+    out
+  end
+end

@@ -3,8 +3,8 @@
 namespace :app do
   desc 'Calculate user file checksums and write to the database.'
 
-  # rake "app:calculate_file_checksums[5]"
-  task :calculate_file_checksums, [:times] do |_, args|
+  # rake "app:compute_file_checksums[5]"
+  task :compute_file_checksums, [:times] do |_, args|
     ts = Time.now
 
     cnt = []

@@ -19,6 +19,7 @@ module FileHelpers
       return nil unless path
       return Rack::Mime.mime_type(File.extname(path)) unless File.size? path
 
+      # @type [String] mime
       mime, charset = detect_mime path
       charset = detect_charset(path) if mime =~ %r{^text/} && charset !~ /^utf/
 
@@ -30,7 +31,7 @@ module FileHelpers
     # @param [String] path
     # @return [Array<String>]
     def detect_mime(path)
-      out = execute_command 'file', '-bi', path
+      out = Process.run_command 'file', '-bi', path
       out.split(/\s*(?:;(?:\s*charset\s*=)?\s*)+/i)
     end
 
@@ -39,23 +40,7 @@ module FileHelpers
     # @param [String] path
     # @return [String]
     def detect_charset(path)
-      execute_command 'uchardet', path # TODO: encguess
-    end
-
-    private
-
-    # @param [Array<String>] cmd
-    # @option [String] :chdir
-    # @return [String]
-    # @raise [RuntimeError]
-    def execute_command(*cmd)
-      require 'open3'
-
-      out, err, status = Open3.capture3(*cmd)
-      out.strip!
-      raise(err.blank? ? out : err.strip) unless status.success?
-
-      out
+      Process.run_command 'uchardet', path # TODO: encguess
     end
   end
 

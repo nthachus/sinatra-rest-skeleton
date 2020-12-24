@@ -54,6 +54,7 @@ member: uid=Administrator,ou=Users,dc=skeleton,dc=xx
 gidNumber: 544
 description: Administrators
 sambaGroupType: 5
+memberOf: cn=Domain Admins,ou=Groups,dc=skeleton,dc=xx
 
 # Password: 1234
 dn: uid=Administrator,ou=Users,dc=skeleton,dc=xx

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe 'Rake app:calculate_file_checksums' do
+RSpec.describe 'Rake app:compute_file_checksums' do
   include_context 'rake'
 
   it 'invokes with invalid number of times' do

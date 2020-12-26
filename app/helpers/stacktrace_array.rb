@@ -19,3 +19,12 @@ class StackTraceArray < Array
 
   alias to_s inspect
 end
+
+class Exception
+  # @param [Integer] top
+  # @param [Regexp] exclude
+  # @return [Array<String>]
+  def stacktrace(top = 1, exclude = %r{/ruby/})
+    StackTraceArray.new self, top, exclude
+  end
+end

@@ -144,7 +144,7 @@ class UploadController < Skeleton::Application
       end
     ]
   rescue ArgumentError => e
-    logger.warn StackTraceArray.new(e, 0)
+    logger.warn e.stacktrace(0)
     nil
   end
 end

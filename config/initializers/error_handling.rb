@@ -13,7 +13,7 @@ module Skeleton
 
     error do
       e = env['sinatra.error']
-      json_error I18n.t('app.something_went_wrong'), settings.production? ? e.to_s : StackTraceArray.new(e)
+      json_error I18n.t('app.something_went_wrong'), settings.production? ? e.to_s : e.stacktrace
     end
 
     helpers do

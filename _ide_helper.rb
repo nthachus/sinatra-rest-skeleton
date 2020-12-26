@@ -75,5 +75,8 @@ module Skeleton
 
     # @return [Skeleton::UploadService]
     def upload_service; end
+
+    # @return [Skeleton::FileService]
+    def file_service; end
   end
 end

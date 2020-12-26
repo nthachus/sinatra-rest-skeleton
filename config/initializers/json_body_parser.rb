@@ -11,7 +11,7 @@ module Skeleton
         begin
           @params.merge! settings.json_encoder.decode(body_content)
         rescue StandardError => e # JSON error
-          logger.warn StackTraceArray.new(e, 0)
+          logger.warn e.stacktrace(0)
           bad_request json_error(I18n.t('app.bad_json_request'), settings.production? ? nil : e.to_s)
         end
       end

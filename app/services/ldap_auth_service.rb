@@ -55,7 +55,7 @@ module Skeleton
       [user, uid, groups, fluff.config]
     rescue AdLdapService::UserNotFoundError => e
       # If user not found?
-      @logger.warn StackTraceArray.new(e, 0)
+      @logger.warn e.stacktrace(0)
       nil
     end
 

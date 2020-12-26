@@ -55,6 +55,7 @@ Misc:
 - Authentication with SSL client certificate
 - Authentication with AD/LDAP server
 - Resumable upload using [tus protocol](https://tus.io/protocols/resumable-upload.html)
+- Resumable download with [range requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests)
 - Active Record DB seeding with environment seed files
 - Support custom Rake tasks with `*.rake` files
 - Unit-testing app controllers, models,... using RSpec

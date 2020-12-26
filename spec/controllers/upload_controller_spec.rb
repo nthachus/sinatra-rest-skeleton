@@ -16,7 +16,7 @@ RSpec.describe UploadController do
     options '/'
     expect(last_response).to be_no_content
     expect(last_response.content_type).to be_nil
-    expect(last_response.headers).to have_key('Tus-Resumable') & have_key('Tus-Extension') & have_key('Tus-Max-Size')
+    expect(last_response.headers).to include('Tus-Resumable', 'Tus-Extension', 'Tus-Max-Size')
   end
 
   it 'uploads without metadata' do
@@ -82,8 +82,7 @@ RSpec.describe UploadController do
     post '/', 'hello', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_ok
     expect(last_response.body).to be_blank
-    expect(last_response.headers).to \
-      include('Upload-Offset' => '5') & include('Location' => match(%r{/[0-9a-f]+$})) & include('Upload-Expires' => be_truthy)
+    expect(last_response.headers).to include('Upload-Offset' => '5', 'Location' => match(%r{/[0-9a-f]+$}), 'Upload-Expires' => be_truthy)
     @file_id << last_response.headers['Location'].sub(%r{^.*/}, '')
   end
 
@@ -99,14 +98,14 @@ RSpec.describe UploadController do
     head "/#{@file_id.first}"
     expect(last_response).to be_ok
     expect(last_response.body).to be_blank
-    expect(last_response.headers).to include('Upload-Offset' => '5') & include('Upload-Metadata' => 'isExtra,name YeS4rdCv,size MTI=')
+    expect(last_response.headers).to include('Upload-Offset' => '5', 'Upload-Metadata' => 'isExtra,name YeS4rdCv,size MTI=')
   end
 
   it 'gets information of deleted-file upload' do
     head '/abc123'
     expect(last_response).to be_ok
     expect(last_response.body).to be_blank
-    expect(last_response.headers).to include('Upload-Offset' => '-1') & include('Upload-Metadata' => 'name eHg=,size LTE=')
+    expect(last_response.headers).to include('Upload-Offset' => '-1', 'Upload-Metadata' => 'name eHg=,size LTE=')
   end
 
   it 'resumes a non-exist upload' do
@@ -172,7 +171,7 @@ RSpec.describe UploadController do
     header 'Upload-Offset', '7'
     patch "/#{@file_id.first}", 'or', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_no_content
-    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '9') & include('Upload-Expires' => be_truthy)
+    expect(last_response.headers).to include('Tus-Resumable', 'Upload-Offset' => '9', 'Upload-Expires' => be_truthy)
   end
 
   it 'uploads the second chunk' do
@@ -180,7 +179,7 @@ RSpec.describe UploadController do
     header 'Upload-Offset', '5'
     patch "/#{@file_id.first}", ' w', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_no_content
-    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '7') & include('Upload-Expires' => be_truthy)
+    expect(last_response.headers).to include('Tus-Resumable', 'Upload-Offset' => '7', 'Upload-Expires' => be_truthy)
   end
 
   TARGET_FILE = File.expand_path('../../storage/files/2/a中Я', __dir__).freeze
@@ -193,7 +192,7 @@ RSpec.describe UploadController do
     header 'Upload-Offset', '9'
     patch "/#{@file_id.first}", 'ld', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_no_content
-    expect(last_response.headers).to have_key('Tus-Resumable') & include('Upload-Offset' => '11')
+    expect(last_response.headers).to include('Tus-Resumable' => be_truthy, 'Upload-Offset' => '11')
     expect(p).to be_file & have_attributes(size: 11, read: 'hello world', mtime: have_attributes(to_i: 1_558_309_643))
   end
 

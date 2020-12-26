@@ -6,7 +6,7 @@ RSpec.describe 'Authorization' do
   end
 
   it 'authorizes without token' do
-    get '/'
+    get '/?token='
     expect(last_response).to be_unauthorized
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
     expect(last_response.body).to eq('{"error":"A token must be passed."}')
@@ -16,7 +16,7 @@ RSpec.describe 'Authorization' do
     setup_auth_header '=', 'Basic'
     get '/'
     expect(last_response).to be_unauthorized
-    expect(last_response.body).to eq('{"error":"A token must be passed."}')
+    expect(last_response.body).to match(/"error":"The token is invalid\.","extra":\[".*: Nil JSON web token/)
   end
 
   # noinspection SpellCheckingInspection

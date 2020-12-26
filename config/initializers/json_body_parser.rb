@@ -4,7 +4,7 @@ module Skeleton
   # Makes JSON-encoded request bodies available in the @params hash.
   class Application < Sinatra::Base
     before do
-      if %w[POST PATCH PUT].include?(request.request_method) && request.media_type == settings.mime_type(:json) &&
+      if %w[POST PATCH PUT].include?(request.request_method) && request.media_type == mime_type(settings.json_content_type) &&
          (body_content = request.body.read) && !body_content.empty?
 
         request.body.rewind # somebody might try to read this stream

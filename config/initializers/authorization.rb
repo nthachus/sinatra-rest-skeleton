@@ -9,10 +9,10 @@ module Skeleton
     attr_reader :current_user
 
     before do
-      if !request.options? && (req = Rack::Auth::AbstractRequest.new(env)).provided? && req.scheme == 'bearer'
+      if !request.options? && (token = authorization_token).first
         begin
           # noinspection RailsParamDefResolve
-          @current_user = respond_to?(:do_authorize, true) ? send(:do_authorize, req.params) : nil
+          @current_user = respond_to?(:do_authorize, true) ? send(:do_authorize, token.last) : nil
         rescue JWT::ExpiredSignature => e
           logger.warn StackTraceArray.new(e, 0)
           unauthorized json_error(I18n.t('app.expired_token'), settings.production? ? nil : e.to_s)
@@ -51,6 +51,15 @@ module Skeleton
       # Halt processing and return a 403 Forbidden.
       def access_denied(body = nil)
         error 403, body
+      end
+
+      # @return [Array<Boolean, String>]
+      def authorization_token # rubocop:disable Metrics/AbcSize
+        req = Rack::Auth::AbstractRequest.new env
+        return [true, req.scheme == 'bearer' ? req.parts[1] : nil] if req.provided?
+
+        hsh = request.params
+        hsh.key?('token') ? [request.path =~ Regexp.new(settings.token_authorization_urls), hsh['token']] : []
       end
     end
   end

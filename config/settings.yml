@@ -1,6 +1,7 @@
 default: &default
   jwt_secret: skeleton
   jwt_lifetime: 900
+  token_authorization_urls: "\\b(download)\\b"
 
   ssl_client_env_key: HTTP_X_SSL_CLIENT_CERT
   ssl_signer_pub_key: "-----BEGIN PUBLIC KEY-----\n\

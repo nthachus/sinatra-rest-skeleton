@@ -53,9 +53,8 @@ module Skeleton
         error 403, body
       end
 
-      # @return [Array<Boolean, String>]
-      def authorization_token # rubocop:disable Metrics/AbcSize
-        req = Rack::Auth::AbstractRequest.new env
+      # @return [Array<#nil?, String>]
+      def authorization_token(req = Rack::Auth::AbstractRequest.new(env))
         return [true, req.scheme == 'bearer' ? req.parts[1] : nil] if req.provided?
 
         hsh = request.params

@@ -17,7 +17,7 @@ class Upload < ActiveRecord::Base
   validates :key, presence: true, length: { maximum: 50, allow_blank: true } # uniqueness: { allow_blank: true }
 
   validates :name, not_empty: true, length: { maximum: 255 }
-  validates_numericality_of :size, only_integer: true
+  validates :size, not_null: true, numericality: { only_integer: true, allow_nil: true }
 
   validates_length_of :mime_type, maximum: 255
   validates_numericality_of :last_modified, only_integer: true, allow_nil: true

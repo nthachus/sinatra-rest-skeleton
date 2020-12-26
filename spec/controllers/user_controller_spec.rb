@@ -35,8 +35,7 @@ RSpec.describe UserController do
     setup_auth_header Fixtures::POWER_USER_JWT
     get '/search'
     expect(last_response).to be_ok
-    expect(last_response.body).to match(/^\[{.*"role":"user",.*"sessions":\[{/) & match(/"role":"power"/)
-    expect(last_response.body).not_to match(/"role":"admin"/)
+    expect(last_response.body).to match(/^\[{.*"role":"user",.*"sessions":\[{/) & match(/"role":"power"/) & not_match(/"role":"admin"/)
   end
 
   private

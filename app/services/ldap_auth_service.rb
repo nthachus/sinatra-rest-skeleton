@@ -93,6 +93,7 @@ module Skeleton
 
       user.email = get_ldap_user_email ldap_user, config, username if sync_email && config[:allow_auto_sync].is_a?(TrueClass)
       user.name, user.profile = get_ldap_user_info ldap_user, config, username
+      user.updated_by = nil if user.changed?
       user.save!
 
       user

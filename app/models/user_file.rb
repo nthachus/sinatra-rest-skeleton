@@ -26,7 +26,7 @@ class UserFile < ActiveRecord::Base
   validates :name, not_empty: true, length: { maximum: 255 }
   validates_uniqueness_of :name, scope: :user_id, if: proc { |o| o.name && o.user_id.is_a?(Integer) && o.name.length.between?(1, 255) }
 
-  validates_numericality_of :size, only_integer: true
+  validates :size, not_null: true, numericality: { only_integer: true, allow_nil: true }
   validates_length_of :media_type, maximum: 120
   validates_length_of :encoding, maximum: 50
 

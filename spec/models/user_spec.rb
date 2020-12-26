@@ -39,8 +39,7 @@ RSpec.describe User do
     subject.email = 'SSL@Skeleton.xx'
     expect(subject).not_to be_valid
     expect(subject.errors[:username]).to include('has already been taken')
-    expect(subject.errors[:email]).to include('has already been taken')
-    expect(subject.errors[:email]).not_to include('is invalid')
+    expect(subject.errors[:email]).to include('has already been taken') & exclude('is invalid')
   end
 
   it 'validates password confirmation' do

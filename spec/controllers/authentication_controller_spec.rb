@@ -35,16 +35,17 @@ RSpec.describe AuthenticationController do
     @jwt << last_response.body[8..-3]
   end
 
-  it 'logins with existing LDAP user' do
-    auth_server = @app.send(:ldap_servers).first
-    auth_server['search_group'] = false
-    begin
-      post '/login', '{"username":"Administrator","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
-      expect(last_response).to be_ok
-      expect(last_response.body).to match(JWT_RES_PATTERN)
-      expect(User.find(1)).to have_attributes(profile: be_present)
-    ensure
-      auth_server.delete 'search_group'
+  { search_group: false, group_search_filter: '(member=%u)' }.each do |ldap_cfg, cfg_value|
+    it "logins with existing LDAP user for #{ldap_cfg}" do
+      auth_server = @app.send(:ldap_servers).first.tap { |ldap_server| ldap_server[ldap_cfg] = cfg_value }
+      begin
+        post '/login', '{"username":"Administrator","password":"1234"}', 'CONTENT_TYPE' => @app.mime_type(:json)
+        expect(last_response).to be_ok
+        expect(last_response.body).to match(JWT_RES_PATTERN)
+        expect(User.find(1)).to have_attributes(profile: be_present)
+      ensure
+        auth_server.delete ldap_cfg
+      end
     end
   end
 

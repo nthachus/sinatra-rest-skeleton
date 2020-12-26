@@ -6,17 +6,17 @@ RSpec.describe Upload do
     expect(subject.errors[:user_id]).to include('is not a number')
     expect(subject.errors[:key]).to include('can\'t be blank')
     expect(subject.errors[:name]).to include('can\'t be empty')
-    expect(subject.errors[:size]).to include('is not a number')
+    expect(subject.errors[:size]).to include('can\'t be empty') & exclude('is not a number')
   end
 
   it 'validates numericality' do
     subject.user_id = '-'
-    subject.size = 0.5
-    subject.last_modified = '!'
+    subject.size = '!'
+    subject.last_modified = 0.5
     expect(subject).not_to be_valid
     expect(subject.errors[:user_id]).to include('is not a number')
-    expect(subject.errors[:size]).to include('must be an integer')
-    expect(subject.errors[:last_modified]).to include('is not a number')
+    expect(subject.errors[:size]).to include('is not a number')
+    expect(subject.errors[:last_modified]).to include('must be an integer')
   end
 
   it 'validates presence' do

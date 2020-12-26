@@ -5,17 +5,17 @@ RSpec.describe UserFile do
     expect(subject).not_to be_valid # run validations
     expect(subject.errors[:user_id]).to include('is not a number')
     expect(subject.errors[:name]).to include('can\'t be empty')
-    expect(subject.errors[:size]).to include('is not a number')
+    expect(subject.errors[:size]).to include('can\'t be empty') & exclude('is not a number')
   end
 
   it 'validates numericality' do
     subject.user_id = '-'
-    subject.size = 0.5
-    subject.last_modified = '!'
+    subject.size = '!'
+    subject.last_modified = 0.5
     expect(subject).not_to be_valid
     expect(subject.errors[:user_id]).to include('is not a number')
-    expect(subject.errors[:size]).to include('must be an integer')
-    expect(subject.errors[:last_modified]).to include('is not a number')
+    expect(subject.errors[:size]).to include('is not a number')
+    expect(subject.errors[:last_modified]).to include('must be an integer')
   end
 
   it 'validates presence' do
@@ -30,13 +30,10 @@ RSpec.describe UserFile do
     subject.encoding = '-' * 60
     subject.checksum = 'a' * 110
     expect(subject).not_to be_valid
-    expect(subject.errors[:name]).to include('is too long (maximum is 255 characters)')
+    expect(subject.errors[:name]).to include('is too long (maximum is 255 characters)') & exclude('has already been taken')
     expect(subject.errors[:media_type]).to include('is too long (maximum is 120 characters)')
     expect(subject.errors[:encoding]).to include('is too long (maximum is 50 characters)')
-    expect(subject.errors[:checksum]).to include('is too long (maximum is 100 characters)')
-
-    expect(subject.errors[:name]).not_to include('has already been taken')
-    expect(subject.errors[:checksum]).not_to include('is invalid')
+    expect(subject.errors[:checksum]).to include('is too long (maximum is 100 characters)') & exclude('is invalid')
   end
 
   it 'validates uniqueness' do

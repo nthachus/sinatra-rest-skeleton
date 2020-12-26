@@ -18,6 +18,8 @@ end
 module RSpec
   # @return [String]
   def task_name; end
+
+  def not_match(*); end
 end
 
 module ActiveRecord

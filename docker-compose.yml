@@ -75,6 +75,23 @@ services:
       && $$GEM_HOME/bin/unicorn -c unicorn.rb -E production
       "
 
+  proxy:
+    image: "nginx:alpine"
+    container_name: skeleton-proxy
+    volumes:
+      - "./spec/fixtures/nginx_data:/etc/nginx/data:ro"
+      - "./spec/fixtures/ldap_data:/etc/nginx/ssl:ro"
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - api-prod
+    command: /bin/sh -c "
+      mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.bak
+      && ln -s /etc/nginx/data/site.conf /etc/nginx/conf.d/default.conf
+      && nginx -g 'daemon off;'
+      "
+
 volumes:
   pg_data:
   ldap_conf:

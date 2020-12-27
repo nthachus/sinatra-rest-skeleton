@@ -77,6 +77,7 @@ module Process
   # @option [String] :chdir
   # @return [String]
   # @raise [RuntimeError] If the process has a non-zero exit code.
+  # @raise [Errno::ENOENT] If the command was not found.
   def self.run_command(*cmd)
     require 'open3'
 

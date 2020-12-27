@@ -32,6 +32,8 @@ module FileHelpers
     # @return [Array<String>]
     def detect_mime(path)
       out = Process.run_command 'file', '-bi', path
+      raise out unless out =~ /^\S+(\s*;|$)/
+
       out.split(/\s*(?:;(?:\s*charset\s*=)?\s*)+/i)
     end
 
@@ -40,7 +42,11 @@ module FileHelpers
     # @param [String] path
     # @return [String]
     def detect_charset(path)
-      Process.run_command 'uchardet', path # TODO: encguess
+      Process.run_command 'uchardet', path
+    rescue Errno::ENOENT
+      # :nocov:
+      Process.run_command 'encguess', path
+      # :nocov:
     end
   end
 

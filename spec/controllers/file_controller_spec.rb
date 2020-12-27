@@ -3,7 +3,7 @@
 require_relative '../fixtures/jwt_for_users'
 
 RSpec.describe FileController do
-  SAMPLE_FN = RUBY_PLATFORM =~ /mswin|mingw/ ? ['-/foo!.z', /="foo!\.z"/] : ['-/foo".z', /="foo\\"\.z"/]
+  SAMPLE_FN = RSpec::Support::OS.windows? ? ['-/foo!.z', /="foo!\.z"/] : ['-/foo".z', /="foo\\"\.z"/]
 
   before :all do
     set_app described_class

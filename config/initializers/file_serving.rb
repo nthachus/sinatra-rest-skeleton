@@ -16,7 +16,8 @@ module Skeleton
 
       halt(*result)
     rescue Errno::ENOENT => e
-      # logger.warn e.stacktrace(0)
+      e.print_stacktrace logger
+
       not_found json_error(I18n.t('app.resource_not_found'), e.to_s)
     end
 

@@ -27,4 +27,11 @@ class Exception
   def stacktrace(top = 1, exclude = %r{/ruby/})
     StackTraceArray.new self, top, exclude
   end
+
+  # @param [#send] out
+  # @param [Symbol] method
+  # @param [Integer] top
+  def print_stacktrace(out, method = :warn, top = 0)
+    out.send method, StackTraceArray.new(self, top)
+  end
 end

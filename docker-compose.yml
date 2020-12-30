@@ -48,7 +48,7 @@ services:
       if ! rake 'db:version' RACK_ENV=development 2>/dev/null; then
       rake 'db:create' 'db:migrate' 'db:seed' RACK_ENV=development && rake 'db:migrate' 'db:seed' RACK_ENV=test;
       fi
-      && $$GEM_HOME/bin/rspec
+      && if [ ! -f ./coverage/index.html ]; then $$GEM_HOME/bin/rspec; fi
       && $$GEM_HOME/bin/thin -t 86400 start
       "
 

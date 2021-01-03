@@ -10,13 +10,13 @@ RSpec.describe AuthenticationController do
     post '/login', '{"username":"!","password":"-"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_bad_request
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to match(/"error":"Invalid username or password.","extra":"Couldn't find/)
+    expect(last_response.body).to match(/"message":"Invalid username or password.","details":"Couldn't find/)
   end
 
   it 'logins with incorrect user-password' do
     post '/login', '{"username":"ssl","password":"-"}', 'CONTENT_TYPE' => @app.mime_type(:json)
     expect(last_response).to be_bad_request
-    expect(last_response.body).to match(/"error":"Invalid username or password.","extra":"Bad credentials/)
+    expect(last_response.body).to match(/"message":"Invalid username or password.","details":"Bad credentials/)
   end
 
   JWT_RES_PATTERN = /^{"jwt":"[^"]+"}$/.freeze

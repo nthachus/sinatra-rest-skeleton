@@ -20,7 +20,7 @@ RSpec.describe UserController do
     get '/search'
     expect(last_response).to be_forbidden
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to eq('{"error":"Access is denied."}')
+    expect(last_response.body).to eq('{"message":"Access is denied."}')
   end
 
   it 'list users by administrator' do

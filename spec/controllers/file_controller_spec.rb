@@ -66,7 +66,7 @@ RSpec.describe FileController do
     get download_api_path(Fixtures::ADMIN_JWT)
     expect(last_response).to be_not_found
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to eq('{"error":"Upload file not found."}')
+    expect(last_response.body).to eq('{"message":"Upload file not found."}')
   end
 
   it 'downloads a non-exist user-file path' do
@@ -75,7 +75,7 @@ RSpec.describe FileController do
       get download_api_path
       expect(last_response).to be_not_found
       expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-      expect(last_response.body).to match(/"error":"Resource not found\.","extra":"No such file or directory\b/)
+      expect(last_response.body).to match(/"message":"Resource not found\.","details":"No such file or directory\b/)
     ensure
       @file.name.chop!
     end

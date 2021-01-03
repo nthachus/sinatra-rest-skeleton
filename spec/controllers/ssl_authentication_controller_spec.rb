@@ -9,21 +9,21 @@ RSpec.describe 'SslAuthenticationController' do
     post '/login_ssl'
     expect(last_response).to be_bad_request
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to eq('{"error":"Missing parameters: SSL Client"}')
+    expect(last_response.body).to eq('{"message":"Missing parameters: SSL Client"}')
   end
 
   it 'logins with bad SSL certificate' do
     setup_ssl_header nil, "-----BEGIN CERTIFICATE-----\nPQ==\n-----END CERTIFICATE-----\n"
     post '/login_ssl'
     expect(last_response).to be_bad_request
-    expect(last_response.body).to match(/"error":"Invalid SSL client certificate.","extra":"nested asn1 error/)
+    expect(last_response.body).to match(/"message":"Invalid SSL client certificate.","details":"nested asn1 error/)
   end
 
   it 'logins with non-verifiable SSL client' do
     setup_ssl_header 'non_verifiable.crt'
     post '/login_ssl'
     expect(last_response).to be_bad_request
-    expect(last_response.body).to match(/"error":"Invalid SSL client certificate.","extra":"Verification failed/)
+    expect(last_response.body).to match(/"message":"Invalid SSL client certificate.","details":"Verification failed/)
   end
 
   it 'logins with SSL client for non-exist user' do
@@ -31,7 +31,7 @@ RSpec.describe 'SslAuthenticationController' do
     post '/login_ssl'
     expect(last_response).to be_bad_request
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to match(/"error":"Invalid SSL client certificate.","extra":"User not found/)
+    expect(last_response.body).to match(/"message":"Invalid SSL client certificate.","details":"User not found/)
   end
 
   it 'logins with SSL client successfully' do

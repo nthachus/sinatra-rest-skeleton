@@ -18,8 +18,9 @@ module Skeleton
 
     helpers do
       # @param [String] message
-      def json_error(message, extra = nil)
-        json extra.present? ? { error: message, extra: extra } : { error: message }
+      # @return [String]
+      def json_error(message, details = nil)
+        json details.present? ? { message: message, details: details } : { message: message }
       end
 
       # Halt processing and return a 501 Not Implemented.

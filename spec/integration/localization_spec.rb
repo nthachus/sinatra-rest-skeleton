@@ -19,6 +19,6 @@ RSpec.describe 'Localization' do
     get '/non-exist'
     expect(last_response).to be_not_found
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to eq('{"error":"資源は見つけなかった。"}')
+    expect(last_response.body).to eq('{"message":"資源は見つけなかった。"}')
   end
 end

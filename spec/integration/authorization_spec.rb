@@ -9,14 +9,14 @@ RSpec.describe 'Authorization' do
     get '/?token='
     expect(last_response).to be_unauthorized
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to eq('{"error":"A token must be passed."}')
+    expect(last_response.body).to eq('{"message":"A token must be passed."}')
   end
 
   it 'authorizes for non-supported scheme' do
     setup_auth_header '=', 'Basic'
     get '/'
     expect(last_response).to be_unauthorized
-    expect(last_response.body).to match(/"error":"The token is invalid\.","extra":\[".*: Nil JSON web token/)
+    expect(last_response.body).to match(/"message":"The token is invalid\.","details":\[".*: Nil JSON web token/)
   end
 
   # noinspection SpellCheckingInspection
@@ -52,7 +52,7 @@ RSpec.describe 'Authorization' do
       setup_auth_header jwt
       get '/'
       expect(last_response).to be_unauthorized
-      expect(last_response.body).to match(/"error":"The token is invalid\.","extra":\[".*: #{expected}/)
+      expect(last_response.body).to match(/"message":"The token is invalid\.","details":\[".*: #{expected}/)
     end
   end
 
@@ -61,7 +61,7 @@ RSpec.describe 'Authorization' do
     setup_auth_header 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTQ3NjQ4MDB9.SelrnuDhP7lP1zqbLp3kSMSeA88DRJqzUQ7nS6dO_10'
     get '/'
     expect(last_response).to be_unauthorized
-    expect(last_response.body).to match(/"error":"The token has expired\."/)
+    expect(last_response.body).to match(/"message":"The token has expired\."/)
   end
 
   private

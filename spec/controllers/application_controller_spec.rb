@@ -16,7 +16,7 @@ RSpec.describe ApplicationController do
     header 'Accept-Language', 'ja'
     get '/status'
     expect(last_response.status).to eq(501)
-    expect(last_response.body).to eq('{"error":"機能は実装されない。"}')
+    expect(last_response.body).to eq('{"message":"機能は実装されない。"}')
   end
 
   it 'supports favicon static file' do

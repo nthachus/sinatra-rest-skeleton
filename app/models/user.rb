@@ -48,6 +48,15 @@ class User < ActiveRecord::Base
   # @return [UserSession]
   attr_accessor :session
 
+  # @return [String, nil]
+  def base_file_path
+    return nil unless id.is_a?(Integer)
+
+    # @type [OpenStruct]
+    settings = Skeleton::Application
+    File.expand_path format(settings.user_file_path, id), settings.root
+  end
+
   private
 
   def on_authorized

@@ -12,7 +12,7 @@ class UserController < Skeleton::Application
   end
 
   get '/search', authorize: [Constants::Roles::ADMIN, Constants::Roles::POWER] do
-    list = user_service.find_all
+    list = user_service.search_user
     json list.as_json(except: :password_digest, include: :sessions)
   end
 end

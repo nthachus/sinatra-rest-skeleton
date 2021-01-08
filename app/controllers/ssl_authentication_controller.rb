@@ -17,7 +17,7 @@ class AuthenticationController < Skeleton::Application
     begin
       client_cert = parse_ssl_client ssl_client
 
-      user = user_service.find_first client_cert['CN'], client_cert['emailAddress']
+      user = user_service.find_user client_cert['CN'], client_cert['emailAddress']
       json jwt: auth_service.do_login(user)
     rescue OpenSSL::OpenSSLError, ActiveRecord::RecordNotFound => e
       logger.warn e.stacktrace(0)

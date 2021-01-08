@@ -17,6 +17,14 @@ RSpec.describe FileController do
     @file.delete
   end
 
+  it 'list all user files' do
+    header 'Authorization', "Bearer #{Fixtures::SSL_USER_JWT}"
+    get '/search?dir='
+    expect(last_response).to be_ok
+    expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
+    expect(last_response.body).to match(%r{"files":\[{.*"name":"-/foo\b.*\.z".*}\],"dirs":\["-"\]})
+  end
+
   it 'headers for user-file downloads' do
     head download_api_path
     expect(last_response).to be_ok

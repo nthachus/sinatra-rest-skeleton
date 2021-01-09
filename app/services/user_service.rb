@@ -8,6 +8,7 @@ module Skeleton
     # @raise [ActiveRecord::RecordNotFound]
     def find_user(username, email = nil)
       user = username.blank? ? nil : User.find_by(username: username)
+      # @type [User]
       user = User.find_by(email: email) if !user && email.present?
       raise ActiveRecord::RecordNotFound, 'User not found' unless user
 

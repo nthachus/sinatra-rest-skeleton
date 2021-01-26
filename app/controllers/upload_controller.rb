@@ -38,7 +38,7 @@ class UploadController < Skeleton::Application
     error 413, json_error(I18n.t('app.file_size_too_large')) if data[:size] > settings.max_upload_size
 
     meta = create_upload_meta data
-    headers['Location'] = "#{request.path}/#{meta.key}"
+    headers['Location'] = "#{request.path}/#{meta.key}".sub(%r{^/+}, '')
     return_code = 201
 
     if request.media_type == TUS_CONTENT_TYPE

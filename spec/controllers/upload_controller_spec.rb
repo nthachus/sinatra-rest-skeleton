@@ -82,7 +82,8 @@ RSpec.describe UploadController do
     post '/', 'hello', 'CONTENT_TYPE' => described_class::TUS_CONTENT_TYPE
     expect(last_response).to be_ok
     expect(last_response.body).to be_blank
-    expect(last_response.headers).to include('Upload-Offset' => '5', 'Location' => match(%r{/[0-9a-f]+$}), 'Upload-Expires' => be_truthy)
+    expect(last_response.headers).to \
+      include('Upload-Offset' => '5', 'Location' => match(%r{(^|/)[0-9a-f]+$}), 'Upload-Expires' => be_truthy)
     @file_id << last_response.headers['Location'].sub(%r{^.*/}, '')
   end
 

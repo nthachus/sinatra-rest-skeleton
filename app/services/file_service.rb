@@ -10,7 +10,10 @@ module Skeleton
 
     # @return [Array<String>]
     def user_file_dirs
-      Dir.chdir @app.current_user.base_file_path do
+      path = @app.current_user.base_file_path
+      return nil unless File.directory? path
+
+      Dir.chdir path do
         Dir.glob('**').select { |f| File.directory? f }
       end
     end

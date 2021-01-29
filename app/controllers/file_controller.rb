@@ -20,4 +20,15 @@ class FileController < Skeleton::Application
 
     serve_file file.real_file_path, filename: file.name, type: file.media_type
   end
+
+  delete %r{/(\d+)}, authorize: [] do |file_id|
+    logger.info "Delete user file: #{file_id.inspect}"
+
+    begin
+      file_service.delete_user_file Integer(file_id)
+      [204, nil]
+    rescue ActiveRecord::RecordNotFound
+      not_found json_error(I18n.t('app.upload_file_not_found'))
+    end
+  end
 end

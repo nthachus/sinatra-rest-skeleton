@@ -12,13 +12,8 @@ RSpec.describe FileController do
     File.write FileUtils.ensure_dir_exists(@file.real_file_path), 'Hello Foo!'
   end
 
-  after :all do
-    File.unlink @file.real_file_path
-    @file.delete
-  end
-
   it 'list all user files' do
-    header 'Authorization', "Bearer #{Fixtures::SSL_USER_JWT}"
+    setup_auth_header
     get '/search?dir='
     expect(last_response).to be_ok
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
@@ -85,11 +80,39 @@ RSpec.describe FileController do
       expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
       expect(last_response.body).to match(/"message":"Resource not found\.","details":"No such file or directory\b/)
     ensure
-      @file.name.chop!
+      expect(@file.update_columns(name: @file.name.chop)).to be_truthy
     end
   end
 
+  it 'deletes a non-exist user file' do
+    setup_auth_header Fixtures::ADMIN_JWT
+    delete '/0'
+    expect(last_response).to be_not_found
+    expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
+    expect(last_response.body).to eq('{"message":"Upload file not found."}')
+  end
+
+  it 'soft deletes an user file' do
+    setup_auth_header
+    delete "/#{@file.id}"
+    expect(last_response).to be_no_content
+    expect(UserFile.deleted.find_by(id: @file.id)).to be_truthy
+    expect(Pathname.new(@file.real_file_path)).to be_file
+  end
+
+  it 'force deletes an user file' do
+    setup_auth_header
+    delete "/#{@file.id}"
+    expect(last_response).to be_no_content
+    expect(UserFile.unscoped.find_by(id: @file.id)).to be_falsey
+    expect(Pathname.new(@file.real_file_path)).not_to be_exist
+  end
+
   private
+
+  def setup_auth_header(jwt = Fixtures::SSL_USER_JWT)
+    header 'Authorization', "Bearer #{jwt}"
+  end
 
   def download_api_path(jwt = Fixtures::SSL_USER_JWT)
     "/#{@file.id}/download?token=#{URI.encode_www_form_component(jwt, @app.default_encoding)}"

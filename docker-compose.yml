@@ -29,7 +29,7 @@ services:
   api-dev:
     build: .
     image: "ami/ruby:2.3"
-    container_name: skeleton-dev
+    container_name: skeleton-api
     volumes:
       - ".:/usr/src/app"
     working_dir: /usr/src/app
@@ -40,6 +40,12 @@ services:
     depends_on:
       - db
       - ldap
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.file-type-cron.schedule: "@every 1m9s"
+      ofelia.job-exec.file-type-cron.command: "rake app:identify_file_types"
+      ofelia.job-exec.file-checksum-cron.schedule: "@every 3m7s"
+      ofelia.job-exec.file-checksum-cron.command: "rake app:compute_file_checksums"
     command: /bin/bash -c "
       bundle install --path vendor/bundle --without '' --no-cache
       && rm -rf ~/.bundle && gem check
@@ -57,7 +63,7 @@ services:
       context: .
       target: ruby_runtime
     image: "ami/ruby:2.3-slim"
-    container_name: skeleton-prod
+    container_name: skeleton-api
     volumes:
       - ".:/usr/src/app"
     working_dir: /usr/src/app
@@ -68,6 +74,14 @@ services:
     depends_on:
       - db
       - ldap
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.file-type-cron.schedule: "@every 1m9s"
+      ofelia.job-exec.file-type-cron.command: "rake app:identify_file_types RACK_ENV=production"
+      ofelia.job-exec.expired-upload-cron.schedule: "@every 1m"
+      ofelia.job-exec.expired-upload-cron.command: "rake app:delete_expired_uploads RACK_ENV=production"
+      ofelia.job-exec.file-checksum-cron.schedule: "@every 3m7s"
+      ofelia.job-exec.file-checksum-cron.command: "rake app:compute_file_checksums RACK_ENV=production"
     command: /bin/bash -c "
       [ -f $$GEM_HOME/bin/unicorn ]
       && bundle check && bundle config --local without 'test:development' && bundle clean
@@ -84,14 +98,31 @@ services:
     ports:
       - 80:80
       - 443:443
-    depends_on:
-      - api-prod
     command: /bin/sh -c "
-      mkdir /var/www && ln -s /usr/share/nginx/html /var/www/html
+      while ! nc -z skeleton-api 3000; do sleep 1; done
+      && mkdir /var/www && ln -s /usr/share/nginx/html /var/www/html
       && mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.bak
       && ln -s /etc/nginx/data/site.conf /etc/nginx/conf.d/default.conf
       && nginx -g 'daemon off;'
       "
+
+  cron-dev:
+    image: mcuadros/ofelia
+    container_name: skeleton-cron
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    depends_on:
+      - api-dev
+    command: daemon --docker
+
+  cron-prod:
+    image: mcuadros/ofelia
+    container_name: skeleton-cron
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    depends_on:
+      - api-prod
+    command: daemon --docker
 
 volumes:
   pg_data:

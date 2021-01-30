@@ -10,12 +10,14 @@ A boilerplate for **Sinatra** Restful-API applications using Rails structure.
 ## What is inside?
 
 For Framework:
+
 - Sinatra (v2.0.x)
 - Sinatra Contrib (v2.0.x)
 - Rack (v2) - Web-server Interface that Sinatra based on
 - Rack Contrib (v2)
 
 For Database:
+
 - I18n (v1) - For Localization
 - Active Support (v5.2.x) - Utility classes and Ruby extensions
 - Active Record (v5.2.x) - ORM Framework
@@ -23,19 +25,23 @@ For Database:
 - Postgres (v1)
 
 For Testing:
+
 - RSpec (v3)
 - Rack Test (v1) - Testing API for Rack
 - SimpleCov (v0.17) - Code coverage analysis tool
 
 For Development:
+
 - Pry (latest) - Runtime developer console for Debugging
 - RuboCop (v0.79) - Code style checker
 - Thin (v1) - Small & fast web-server
 
 For Deployment:
+
 - Unicorn (latest) - Rack HTTP server
 
 Misc:
+
 - BCrypt (v3.1.x) - For password hashing
 - JWT (latest) - JSON Web Token
 - Net::LDAP (latest) - LDAP client
@@ -132,7 +138,7 @@ Build and run Development server:
 
     $ docker-compose up -d db api-dev
 
-Then, run `docker exec -it skeleton-dev /bin/bash` for development console.\
+Then, run `docker exec -it skeleton-api /bin/bash` for development console.\
 **Refer** to [docker-compose.yml](docker-compose.yml) for more details.
 
 Running Production server after the built:

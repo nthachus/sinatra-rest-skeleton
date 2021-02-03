@@ -8,14 +8,9 @@ module Skeleton
       @app.current_user.files.find_by id: file_id
     end
 
-    # @param [Integer] file_id
+    # @param [UserFile] file
     # @param [Integer] user_id
-    # @return [UserFile]
-    # @raise [ActiveRecord::RecordNotFound]
-    def delete_user_file(file_id, user_id = @app.current_user.id)
-      # @type [UserFile]
-      file = UserFile.unscoped.find_by! id: file_id, user_id: user_id
-
+    def delete_user_file(file, user_id = nil)
       if file.deleted_at
         path = file.real_file_path
         FileUtils.remove_entry path if File.exist? path
@@ -23,6 +18,40 @@ module Skeleton
         file.delete
       else
         file.update deleted_at: Time.now, deleted_by: user_id
+      end
+    end
+
+    # @param [Array<Integer>] file_ids
+    # @param [Integer] user_id
+    # @raise [ActiveRecord::RecordNotFound]
+    def delete_user_files(file_ids, user_id = @app.current_user.id)
+      files = UserFile.unscoped.where id: file_ids, user_id: user_id
+
+      remains = file_ids - files.map(&:id)
+      raise ActiveRecord::RecordNotFound, "Couldn't find #{UserFile} with ID: #{remains.inspect}" unless remains.empty?
+
+      UserFile.transaction do
+        files.each { |file| delete_user_file file, user_id }
+      end
+    end
+
+    # @param [UserFile] file
+    # @param [Integer] user_id
+    def undelete_user_file(file, user_id = nil)
+      file.update deleted_at: nil, updated_by: user_id
+    end
+
+    # @param [Array<Integer>] file_ids
+    # @param [Integer] user_id
+    # @raise [ActiveRecord::RecordNotFound]
+    def undelete_user_files(file_ids, user_id = @app.current_user.id)
+      files = UserFile.deleted.where id: file_ids, user_id: user_id
+
+      remains = file_ids - files.map(&:id)
+      raise ActiveRecord::RecordNotFound, "Couldn't find deleted #{UserFile} with ID: #{remains.inspect}" unless remains.empty?
+
+      UserFile.transaction do
+        files.each { |file| undelete_user_file file }
       end
     end
 
@@ -36,9 +65,11 @@ module Skeleton
       end
     end
 
+    # @param [Hash] params
     # @return [Array<UserFile>]
-    def search_user_file
-      UserFile.where(user_id: @app.current_user.id)
+    def search_user_file(params = {})
+      q = params[:deleted] ? UserFile.deleted : UserFile
+      q.where(user_id: @app.current_user.id)
     end
   end
 

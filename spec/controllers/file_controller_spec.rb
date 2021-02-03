@@ -86,13 +86,37 @@ RSpec.describe FileController do
 
   it 'deletes a non-exist user file' do
     setup_auth_header Fixtures::ADMIN_JWT
-    delete '/0'
+    delete '/0,0'
     expect(last_response).to be_not_found
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to eq('{"message":"Upload file not found."}')
+    expect(last_response.body).to match(/"message":"Upload file not found\.","details":"Couldn't find\b.*\[0\b/)
   end
 
   it 'soft deletes an user file' do
+    setup_auth_header
+    delete "/#{@file.id},#{@file.id}"
+    expect(last_response).to be_no_content
+    expect(UserFile.deleted.find_by(id: @file.id)).to be_truthy
+    expect(Pathname.new(@file.real_file_path)).to be_file
+  end
+
+  it 'undeletes a non-exist user file' do
+    setup_auth_header
+    post '/0,0/undelete'
+    expect(last_response).to be_not_found
+    expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
+    expect(last_response.body).to match(/"message":"Upload file not found\.","details":"Couldn't find deleted\b.*\[0\b/)
+  end
+
+  it 'undeletes an user file' do
+    setup_auth_header
+    post "/#{@file.id},#{@file.id}/undelete"
+    expect(last_response).to be_no_content
+    expect(UserFile.find_by(id: @file.id)).to be_truthy & have_attributes(deleted_at: nil)
+    expect(Pathname.new(@file.real_file_path)).to be_file
+  end
+
+  it 're-deletes an user file' do
     setup_auth_header
     delete "/#{@file.id}"
     expect(last_response).to be_no_content
@@ -102,7 +126,7 @@ RSpec.describe FileController do
 
   it 'force deletes an user file' do
     setup_auth_header
-    delete "/#{@file.id}"
+    delete "/#{@file.id},#{@file.id}"
     expect(last_response).to be_no_content
     expect(UserFile.unscoped.find_by(id: @file.id)).to be_falsey
     expect(Pathname.new(@file.real_file_path)).not_to be_exist

@@ -14,7 +14,7 @@ RSpec.describe FileController do
 
   it 'list all user files' do
     setup_auth_header
-    get '/search?dir='
+    get '/search?dir'
     expect(last_response).to be_ok
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
     expect(last_response.body).to match(%r{"files":\[{.*"name":"-/foo\b.*\.z".*}\],"dirs":\["-"\]})

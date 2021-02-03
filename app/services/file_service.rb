@@ -17,7 +17,8 @@ module Skeleton
 
         file.delete
       else
-        file.update deleted_at: Time.now, deleted_by: user_id
+        file.assign_attributes deleted_at: Time.now, deleted_by: user_id
+        file.save! touch: false
       end
     end
 
@@ -38,7 +39,7 @@ module Skeleton
     # @param [UserFile] file
     # @param [Integer] user_id
     def undelete_user_file(file, user_id = nil)
-      file.update deleted_at: nil, updated_by: user_id
+      file.update! deleted_at: nil, updated_by: user_id
     end
 
     # @param [Array<Integer>] file_ids
@@ -68,7 +69,7 @@ module Skeleton
     # @param [Hash] params
     # @return [Array<UserFile>]
     def search_user_file(params = {})
-      q = params[:deleted] ? UserFile.deleted : UserFile
+      q = params.key?(:deleted) ? UserFile.deleted : UserFile
       q.where(user_id: @app.current_user.id)
     end
   end

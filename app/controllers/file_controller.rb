@@ -8,6 +8,8 @@ class FileController < Skeleton::Application
   #   @return [Skeleton::FileService]
 
   get '/search', authorize: [] do
+    logger.info "Search user files by: #{params.inspect}"
+
     list = file_service.search_user_file params
     paths = file_service.user_file_dirs
 

@@ -14,10 +14,10 @@ RSpec.describe FileController do
 
   it 'list all user files' do
     setup_auth_header
-    get '/search?dir'
+    get '/search?dir='
     expect(last_response).to be_ok
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
-    expect(last_response.body).to match(%r{"files":\[{.*"name":"-/foo\b.*\.z".*}\],"dirs":\["-"\]})
+    expect(last_response.body).to match(%r{"files":\[{.*"name":"-/foo\b.*\.z".*}\],"dirs":\[.*"-".*\]})
   end
 
   it 'headers for user-file downloads' do
@@ -100,6 +100,14 @@ RSpec.describe FileController do
     expect(Pathname.new(@file.real_file_path)).to be_file
   end
 
+  it 'list deleted user files' do
+    setup_auth_header
+    get '/search?deleted'
+    expect(last_response).to be_ok
+    expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
+    expect(last_response.body).to match(/"files":\[{.*"id":#{@file.id}\b.*}\],"dirs"/)
+  end
+
   it 'undeletes a non-exist user file' do
     setup_auth_header
     post '/0,0/undelete'
@@ -114,6 +122,14 @@ RSpec.describe FileController do
     expect(last_response).to be_no_content
     expect(UserFile.find_by(id: @file.id)).to be_truthy & have_attributes(deleted_at: nil)
     expect(Pathname.new(@file.real_file_path)).to be_file
+  end
+
+  it 'search deleted user files' do
+    setup_auth_header
+    get '/search?deleted='
+    expect(last_response).to be_ok
+    expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
+    expect(last_response.body).to match(/"files":\[\],"dirs"/)
   end
 
   it 're-deletes an user file' do

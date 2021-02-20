@@ -11,13 +11,13 @@ RSpec.describe 'Error Handling' do
 
   it 'handles not-found error' do
     get '/non-exist'
-    expect(last_response).to be_not_found
+    expect(last_response).to be_not_found & have_attributes(cache_control: match(/\bno-cache\b/))
     expect(last_response.body).to eq('{"message":"Resource not found."}')
   end
 
   it 'handles uncaught exception' do
     get '/raise-error'
-    expect(last_response.status).to eq(500)
+    expect(last_response).to have_attributes(status: 500, cache_control: match(/\bno-cache\b/))
     expect(last_response.content_type).to match(/\b#{settings.default_encoding}$/)
     expect(last_response.body).to match(/"message":".*","details":\[".*: Runtime error\.".*\b#{File.basename(__FILE__)}:7:/)
   end

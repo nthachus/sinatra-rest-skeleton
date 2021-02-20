@@ -15,7 +15,7 @@ RSpec.describe FileController do
   it 'list all user files' do
     setup_auth_header
     get '/search?dir='
-    expect(last_response).to be_ok
+    expect(last_response).to be_ok & have_attributes(cache_control: match(/\bno-cache\b/))
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
     expect(last_response.body).to match(%r{"files":\[{.*"name":"-/foo\b.*\.z".*}\],"dirs":\[.*"-".*\]})
   end
@@ -30,20 +30,20 @@ RSpec.describe FileController do
   it 'downloads a non-modified user-file' do
     header 'If-Modified-Since', File.mtime(@file.real_file_path).httpdate
     get download_api_path
-    expect(last_response).to have_attributes(status: 304)
+    expect(last_response).to have_attributes(status: 304, cache_control: be_falsey)
     expect(last_response.body).to be_empty
   end
 
   it 'downloads user-file with invalid ranges' do
     header 'Range', 'bytes= 10- '
     get download_api_path
-    expect(last_response).to have_attributes(status: 416, content_type: 'text/plain')
+    expect(last_response).to have_attributes(status: 416, content_type: 'text/plain', cache_control: be_falsey)
     expect(last_response.headers).to include('Content-Range' => 'bytes */10')
   end
 
   it 'downloads user-file without ranges' do
     get download_api_path
-    expect(last_response).to be_ok & have_attributes(content_type: match(%r{^text/x-c\b}), content_length: 10)
+    expect(last_response).to be_ok & have_attributes(content_type: match(%r{^text/x-c\b}), content_length: 10, cache_control: be_falsey)
     expect(last_response.headers).to include('Last-Modified' => be_truthy, 'Content-Disposition' => match(SAMPLE_FN[1]))
     expect(last_response.body).to eq('Hello Foo!')
   end
@@ -67,7 +67,7 @@ RSpec.describe FileController do
 
   it 'downloads a non-exist user-file' do
     get download_api_path(Fixtures::ADMIN_JWT)
-    expect(last_response).to be_not_found
+    expect(last_response).to be_not_found & have_attributes(cache_control: match(/\bno-cache\b/))
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
     expect(last_response.body).to eq('{"message":"Upload file not found."}')
   end

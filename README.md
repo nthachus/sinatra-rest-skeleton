@@ -55,6 +55,7 @@ Misc:
 - Handle errors with JSON responses
 - Auto-parse JSON request body
 - Provide simple needed parameters validation
+- Disable client caching for JSON APIs
 - Authentication & Authorization using JWT
 - Role-based Authorization
 - Provide API to renew JWT

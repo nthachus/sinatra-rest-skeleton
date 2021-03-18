@@ -1,32 +1,23 @@
-FROM amazonlinux:2 AS ruby_runtime
+FROM debian:stretch-slim AS ruby_runtime
 
+ARG DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
 
-RUN amazon-linux-extras install -y epel \
- && rpm --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 \
- && yum clean all \
- && rm -rf /var/cache/yum/ /tmp/*
-
-RUN amazon-linux-extras enable ruby2.4 postgresql9.6 \
- && yum install -y ruby ruby-irb rubygems rubygem-json \
-  postgresql-libs file uchardet \
- && yum clean all \
- && rm -rf /var/cache/yum/ /tmp/*
-
-RUN gem install bundler -v '~> 1' -N \
- && gem install rake -v '~> 12' -N \
- && rm -rf ~/.gem/ /tmp/*
+RUN apt-get update -qq \
+ && apt-get install -qy --no-install-recommends ruby ruby-bundler libpq5 \
+ && echo "deb http://deb.debian.org/debian buster main" >> /etc/apt/sources.list.d/buster.list \
+ && apt-get update -qq \
+ && apt-get install -qy --no-install-recommends file uchardet \
+ && rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /etc/apt/sources.list.d/buster.list
 
 ENV BUNDLE_SILENCE_ROOT_WARNING=1
+CMD ["irb"]
 
 # Multi-stage builds
 FROM ruby_runtime AS ruby_development
 
-RUN yum install -y gcc gcc-c++ make patch redhat-rpm-config zlib-devel \
-  ruby-devel sqlite-devel postgresql-devel \
- && yum clean all \
- && rm -rf /var/cache/yum/ /tmp/*
+RUN apt-get update -qq \
+ && apt-get install -qy --no-install-recommends build-essential zlib1g-dev ruby-dev libpq-dev \
+ && rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/*
 
-RUN sed -i 's/"Extra file"/&\n  File.unlink File.join(gem_directory, extra)/' /usr/share/rubygems/rubygems/validator.rb
-
-CMD ["irb"]
+RUN sed -i 's/"Extra file"/&\n  File.unlink File.join(gem_directory, extra)/' /usr/lib/ruby/2.3.0/rubygems/validator.rb

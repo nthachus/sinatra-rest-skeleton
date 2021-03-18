@@ -147,7 +147,7 @@ Running Production server after the built:
     $ docker-compose up -d db api-prod
 
 Navigate http://docker.lvh.me:3000/ for verifying (`docker.lvh.me` is the running docker-machine IP).\
-**Refer** to [Dockerfile](134f4949560b1b38d06ab42a396781226adf13e1) for deployment on [Amazon Linux 2](https://aws.amazon.com/amazon-linux-2/).
+**Refer** to [Dockerfile](../134f4949560b1b38d06ab42a396781226adf13e1/Dockerfile) for deployment on [Amazon Linux 2](https://aws.amazon.com/amazon-linux-2/).
 
 ### Notes
 

@@ -55,7 +55,7 @@ Misc:
 - Handle errors with JSON responses
 - Auto-parse JSON request body
 - Provide simple needed parameters validation
-- Disable client caching for JSON APIs
+- Disable client caching for JSON response APIs
 - Authentication & Authorization using JWT
 - Role-based Authorization
 - Provide API to renew JWT
@@ -80,7 +80,7 @@ $
 │  ├─ [initializers]  - Sinatra app initializers: filters, extensions,...
 │  ├─ [locales]       - Localization YAML files
 │  ├─ application.rb  - Sinatra modular app
-│  ├─ database.yml    - Database config for Active Record
+│  ├─ database.yml    - Database configuration for Active Record
 │  ├─ environment.rb  - Initialize the application
 │  └─ settings.yml    - App settings
 ├─ [db]
@@ -103,10 +103,11 @@ $
 │  ├─ [pids]    - Unicorn PID file
 │  └─ [sockets] - Unicorn socket file
 ├─ [vendor]
-├─ .rspec       - RSpec config file
+├─ .rspec       - RSpec configuration file
+├─ .rubocop.yml - Ruby code linter configuration
 ├─ config.ru    - Rack app entry-point
 ├─ Rakefile     - Rake tasks entry-point
-└─ unicorn.rb   - Unicorn config file
+└─ unicorn.rb   - Unicorn configuration file
 ```
 
 ## Development

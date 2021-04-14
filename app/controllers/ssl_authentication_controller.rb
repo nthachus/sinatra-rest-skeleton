@@ -11,11 +11,8 @@ class AuthenticationController < Skeleton::Application
     ssl_client = env[settings.ssl_client_env_key]
     bad_request json_error(I18n.t('app.missing_parameters', values: 'SSL Client')) if ssl_client.blank?
 
-    ssl_client = URI.decode_www_form_component ssl_client, settings.default_encoding
-    logger.debug "Login with SSL client: #{ssl_client}"
-
     begin
-      client_cert = parse_ssl_client ssl_client
+      client_cert = parse_ssl_client unescape_ssl_cert(ssl_client)
 
       user = user_service.find_user client_cert['CN'], client_cert['emailAddress']
       json jwt: auth_service.do_login(user)
@@ -26,6 +23,15 @@ class AuthenticationController < Skeleton::Application
   end
 
   private
+
+  # @param [String] ssl_client
+  # @return [String]
+  def unescape_ssl_cert(ssl_client)
+    logger.debug "Login with SSL client: #{ssl_client}"
+
+    ssl_client = URI.decode_www_form_component(ssl_client, settings.default_encoding) if ssl_client.include? '%'
+    ssl_client.gsub(/(---)\s+/, "\\1\n").gsub(/\s+(---)/, "\n\\1")
+  end
 
   # @param [String] ssl_client
   # @return [Hash] Certificate subject

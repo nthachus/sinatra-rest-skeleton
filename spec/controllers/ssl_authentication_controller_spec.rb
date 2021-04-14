@@ -13,7 +13,7 @@ RSpec.describe 'SslAuthenticationController' do
   end
 
   it 'logins with bad SSL certificate' do
-    setup_ssl_header nil, "-----BEGIN CERTIFICATE-----\nPQ==\n-----END CERTIFICATE-----\n"
+    header 'X-SSL-Client-Cert', "-----BEGIN CERTIFICATE-----\nPQ==\n-----END CERTIFICATE-----\n"
     post '/login_ssl'
     expect(last_response).to be_bad_request
     expect(last_response.body).to match(/"message":"Invalid SSL client certificate.","details":"nested asn1 error/)
@@ -27,7 +27,7 @@ RSpec.describe 'SslAuthenticationController' do
   end
 
   it 'logins with SSL client for non-exist user' do
-    setup_ssl_header 'non_exist_user.crt'
+    setup_ssl_header 'non_exist_user.crt', false
     post '/login_ssl'
     expect(last_response).to be_bad_request
     expect(last_response.content_type).to match(/\b#{@app.default_encoding}$/)
@@ -43,8 +43,8 @@ RSpec.describe 'SslAuthenticationController' do
 
   private
 
-  def setup_ssl_header(cert_file, cert = nil)
-    cert ||= File.read File.expand_path("../fixtures/#{cert_file}", __dir__)
-    header 'X-SSL-Client-Cert', URI.encode_www_form_component(cert, @app.default_encoding)
+  def setup_ssl_header(cert_file, escape = true)
+    cert = File.read File.expand_path("../fixtures/#{cert_file}", __dir__)
+    header 'X-SSL-Client-Cert', escape ? URI.encode_www_form_component(cert, @app.default_encoding) : cert.strip.gsub(/\s+/, ' ')
   end
 end

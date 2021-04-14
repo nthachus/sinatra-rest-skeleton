@@ -20,4 +20,4 @@ RUN apt-get update -qq \
  && apt-get install -qy --no-install-recommends build-essential zlib1g-dev ruby-dev libpq-dev \
  && rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/*
 
-RUN sed -i 's/"Extra file"/&\n  File.unlink File.join(gem_directory, extra)/' /usr/lib/ruby/2.3.0/rubygems/validator.rb
+RUN sed -i 's/"Extra file"/&\n\t  File.unlink File.join(gem_directory, extra)/' /usr/lib/ruby/2.3.0/rubygems/validator.rb

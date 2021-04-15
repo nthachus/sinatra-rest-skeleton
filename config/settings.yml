@@ -9,7 +9,7 @@ default: &default
     xD+tWbffwobCIPTcu+uC1NdqZDbHyPuQ8jN++QvabAF2W+2bq23KHTlpwT6KKy8GjZHBlBAgebQ8Se06X55LL60AbJ27xCVVM4Mv
     OibgpdCNsLXVNbc0o95opMl+/7P/PF1UmpnFC4jX8950BEsruDqRYrXlihx8GZpBHqXs7RrXwvBsmnBIRdLW1Dp0RFYwwujDCuP7
     aRxP/d2SgTktoMVQLof8U430OtwS30kdGcxef0nScoZyhKti6AN7tHDRpnFu38dGStB3uTsPumbh549ZEb5wDQIDAQAB\n\
-    -----END PUBLIC KEY-----\n"
+    -----END PUBLIC KEY-----"
 
   upload_tmp_path: "./tmp/uploads/%s"
   user_file_path: "./storage/files/%s"
@@ -57,7 +57,7 @@ production:
     xD+tWbffwobCIPTcu+uC1NdqZDbHyPuQ8jN++QvabAF2W+2bq23KHTlpwT6KKy8GjZHBlBAgebQ8Se06X55LL60AbJ27xCVVM4Mv
     OibgpdCNsLXVNbc0o95opMl+/7P/PF1UmpnFC4jX8950BEsruDqRYrXlihx8GZpBHqXs7RrXwvBsmnBIRdLW1Dp0RFYwwujDCuP7
     aRxP/d2SgTktoMVQLof8U430OtwS30kdGcxef0nScoZyhKti6AN7tHDRpnFu38dGStB3uTsPumbh549ZEb5wDQIDAQAB\n\
-    -----END PUBLIC KEY-----\n"
+    -----END PUBLIC KEY-----"
 
   ldap_servers:
     - hostname: skeleton-ldap

@@ -45,7 +45,7 @@ module FileHelpers
       Process.run_command 'uchardet', path
     rescue Errno::ENOENT
       # :nocov:
-      Process.run_command 'encguess', path
+      Process.run_command('encguess', path).sub(/^.*\s+/, '')
       # :nocov:
     end
   end

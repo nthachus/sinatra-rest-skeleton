@@ -19,6 +19,6 @@ namespace :app do
     end
 
     # DEBUG
-    puts "#{num} expired uploads / #{cnt} obsoleted files was deleted in: #{Time.now - ts}s"
+    puts "#{num} expired uploads / #{cnt} obsoleted files was deleted in: #{Time.now - ts}s" unless num.zero? && cnt.zero?
   end
 end

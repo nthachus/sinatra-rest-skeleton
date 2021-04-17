@@ -42,12 +42,12 @@ services:
       - ldap
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.file-type-cron.schedule: "@every 1m9s"
-      ofelia.job-exec.file-type-cron.command: "rake app:identify_file_types"
-      ofelia.job-exec.file-checksum-cron.schedule: "@every 3m7s"
+      ofelia.job-exec.file-type-cron.schedule: "@every 1m1s"
+      ofelia.job-exec.file-type-cron.command: "rake app:identify_file_types[5]"
+      ofelia.job-exec.file-checksum-cron.schedule: "@every 2m7s"
       ofelia.job-exec.file-checksum-cron.command: "rake app:compute_file_checksums"
     command: /bin/bash -c "
-      bundle install --path vendor/bundle --without '' --no-cache
+      bundle install --path vendor/bundle --without '' --frozen --no-cache
       && rm -rf ~/.bundle && gem check
       && $$GEM_HOME/bin/rubocop
       &&
@@ -76,12 +76,12 @@ services:
       - ldap
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.file-type-cron.schedule: "@every 1m9s"
-      ofelia.job-exec.file-type-cron.command: "rake app:identify_file_types RACK_ENV=production"
+      ofelia.job-exec.file-type-cron.schedule: "@every 1m1s"
+      ofelia.job-exec.file-type-cron.command: "rake app:identify_file_types[20] RACK_ENV=production"
       ofelia.job-exec.expired-upload-cron.schedule: "@every 1m"
       ofelia.job-exec.expired-upload-cron.command: "rake app:delete_expired_uploads RACK_ENV=production"
-      ofelia.job-exec.file-checksum-cron.schedule: "@every 3m7s"
-      ofelia.job-exec.file-checksum-cron.command: "rake app:compute_file_checksums RACK_ENV=production"
+      ofelia.job-exec.file-checksum-cron.schedule: "@every 2m7s"
+      ofelia.job-exec.file-checksum-cron.command: "rake app:compute_file_checksums[10] RACK_ENV=production"
     command: /bin/bash -c "
       [ -f $$GEM_HOME/bin/unicorn ]
       && bundle check && bundle config --local without 'test:development' && bundle clean

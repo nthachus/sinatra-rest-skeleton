@@ -8,7 +8,7 @@ RSpec.describe 'Rake app:delete_expired_uploads' do
   end
 
   it 'invokes with infinitive timeout' do
-    expect { subject.invoke '604800 ' }.to output(%r{^0 expired uploads / 0 obsoleted files was deleted}).to_stdout
+    expect { subject.invoke '604800 ' }.to output(/^\s*$/).to_stdout
   end
 
   it 'invokes to delete obsoleted files' do

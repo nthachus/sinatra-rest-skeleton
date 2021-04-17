@@ -10,6 +10,6 @@ namespace :app do
 
     num = UserSession.where(UserSession.arel_table[:updated_at].lteq(ts - timeout)).delete_all
     # DEBUG
-    puts "#{num} expired sessions was deleted in: #{Time.now - ts}s"
+    puts "#{num} expired sessions was deleted in: #{Time.now - ts}s" if num.nonzero?
   end
 end

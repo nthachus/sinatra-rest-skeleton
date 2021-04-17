@@ -9,7 +9,7 @@ RSpec.describe 'Rake app:identify_file_types' do
 
   it 'invokes to detect file type by extension' do
     expect(o = UserFile.create(user_id: 1, name: '!.gz', size: -1)).to be_truthy
-    expect { subject.invoke ' 5' }.to output(/^Type of user files \[.*\b#{o.id}.*\] was detected/).to_stdout
+    expect { subject.invoke ' 2' }.to output(/^Type of user files \[.*\b#{o.id}.*\] was detected/).to_stdout
     expect(o.reload).to have_attributes(media_type: 'application/x-gzip', encoding: nil, delete: be_truthy)
   end
 
@@ -26,7 +26,7 @@ RSpec.describe 'Rake app:identify_file_types' do
       expect(o = UserFile.create(user_id: 1, name: '!.c', size: file_content.size)).to be_truthy
       expect(File.write(FileUtils.ensure_dir_exists(path = o.real_file_path), file_content, mode: 'wb')).to be_truthy
 
-      expect { subject.invoke }.to output(/^Type of user files \[.*\b#{o.id}.*\] was detected/).to_stdout
+      expect { subject.invoke '1' }.to output(/^Type of user files \[.*\b#{o.id}.*\] was detected/).to_stdout
 
       expect(File.unlink(path)).to be_truthy
       expect(o.reload).to have_attributes(media_type: content[2] || 'text/plain', encoding: match(/^#{charset}$/i), delete: be_truthy)

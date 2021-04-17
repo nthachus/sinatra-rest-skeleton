@@ -8,7 +8,7 @@ RSpec.describe 'Rake app:delete_expired_sessions' do
   end
 
   it 'invokes with infinitive timeout' do
-    expect { subject.invoke '604800 ' }.to output(/^0 expired sessions was deleted/).to_stdout
+    expect { subject.invoke '604800 ' }.to output(/^\s*$/).to_stdout
   end
 
   it 'invokes to delete expired sessions' do

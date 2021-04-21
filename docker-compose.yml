@@ -54,6 +54,7 @@ services:
       if ! rake 'db:version' RACK_ENV=development 2>/dev/null; then
       rake 'db:create' 'db:migrate' 'db:seed' RACK_ENV=development && rake 'db:migrate' 'db:seed' RACK_ENV=test;
       fi
+      && touch tmp/pids/unicorn.pid
       && if [ ! -f ./coverage/index.html ]; then $$GEM_HOME/bin/rspec; fi
       && $$GEM_HOME/bin/thin -t 86400 start
       "
@@ -86,6 +87,7 @@ services:
       [ -f $$GEM_HOME/bin/unicorn ]
       && bundle check && bundle config --local without 'test:development' && bundle clean
       && if ! rake 'db:version' RACK_ENV=production 2>/dev/null; then rake 'db:setup' RACK_ENV=production; fi
+      && rm -f tmp/pids/unicorn.pid
       && $$GEM_HOME/bin/unicorn -c unicorn.rb -E production
       "
 

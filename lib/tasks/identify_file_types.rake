@@ -8,16 +8,15 @@ namespace :app do
     ts = Time.now
 
     cnt = []
-    Integer(args[:times] || 3).times do
+    Integer(args[:times] || 3).times do |i|
+      sleep 1 if i.nonzero?
+      break unless File.exist? Skeleton::Application::PID_FILE
+
       file = UserFile.find_by media_type: nil
+      next unless file&.update_columns(media_type: '') # lock
 
-      if file&.update_columns(media_type: '') # lock
-        mime, charset = FileHelpers.identify_type file.real_file_path
-
-        cnt << file.id if mime && file.update_columns(media_type: mime, encoding: charset)
-      end
-
-      sleep 1
+      mime, charset = FileHelpers.identify_type file.real_file_path
+      cnt << file.id if mime && file.update_columns(media_type: mime, encoding: charset)
     end
 
     # DEBUG

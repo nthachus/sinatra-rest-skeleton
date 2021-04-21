@@ -3,6 +3,10 @@
 RSpec.describe 'Rake app:compute_file_checksums' do
   include_context 'rake'
 
+  before :all do
+    FileUtils.touch Skeleton::Application::PID_FILE
+  end
+
   it 'invokes with invalid number of times' do
     expect { subject.invoke ' !' }.to raise_error(ArgumentError, /\bInvalid .*\bInteger\b/i)
   end

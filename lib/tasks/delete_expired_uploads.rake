@@ -14,6 +14,8 @@ namespace :app do
 
     cnt = 0
     Dir[File.join(File.expand_path(format(settings.upload_tmp_path, '*'), settings.root), '*')].each do |path|
+      break unless File.exist? Skeleton::Application::PID_FILE
+
       name = File.basename path
       cnt += File.unlink(path) if name =~ /^[0-9a-f]+$/ && File.file?(path) && !Upload.exists?(key: name)
     end

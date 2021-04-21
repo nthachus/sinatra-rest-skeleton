@@ -8,6 +8,8 @@ require 'sinatra/config_file'
 module Skeleton
   # Base API Controller
   class Application < Sinatra::Base
+    PID_FILE = File.expand_path '../tmp/pids/unicorn.pid', __dir__
+
     # Global settings
     set :root, File.expand_path('..', __dir__)
     disable :static
